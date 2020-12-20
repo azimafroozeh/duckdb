@@ -28,6 +28,8 @@ void BuiltinFunctions::RegisterMathFunctions() {
 	Register<PiFun>();
 
 	Register<BitCountFun>();
+
+	Register<PlusFun>();
 }
 
 } // namespace duckdb

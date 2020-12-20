@@ -53,7 +53,7 @@ else()
 
   set(DUCKDB_LINK_LIBS fmt pg_query duckdb_re2 miniz utf8proc)
 
-  add_library(duckdb SHARED ${ALL_OBJECT_FILES})
+  add_library(duckdb SHARED ${ALL_OBJECT_FILES} include/duckdb/common/dispatch.hpp)
   target_link_libraries(duckdb ${DUCKDB_LINK_LIBS})
   link_threads(duckdb)
 

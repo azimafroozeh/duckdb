@@ -85,4 +85,9 @@ struct BitCountFun {
 	static void RegisterFunction(BuiltinFunctions &set);
 };
 
+struct PlusFun {
+	static void RegisterFunction(BuiltinFunctions &set);
+
+};
+
 } // namespace duckdb

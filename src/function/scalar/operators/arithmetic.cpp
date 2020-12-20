@@ -571,7 +571,7 @@ static void BinaryScalarFunctionIgnoreZero(DataChunk &input, ExpressionState &st
 template <class OP> static scalar_function_t GetBinaryFunctionIgnoreZero(LogicalType type) {
 	switch (type.id()) {
 	case LogicalTypeId::TINYINT:
-		return BinaryScalarFunctionIgnoreZero<int8_t, int8_t, int8_t, OP>;
+        return BinaryScalarFunctionIgnoreZero<int8_t, int8_t, int8_t, OP>;
 	case LogicalTypeId::SMALLINT:
 		return BinaryScalarFunctionIgnoreZero<int16_t, int16_t, int16_t, OP>;
 	case LogicalTypeId::INTEGER:
