@@ -444,7 +444,6 @@ if(EXISTS ${CMAKE_CONFIG_TEMPLATE} AND EXISTS ${CMAKE_CONFIG_VERSION_TEMPLATE})
 endif()
 
 add_subdirectory(benchmark)
-add_subdirectory(mybenchmark)
 add_subdirectory(examples/embedded-c++)
 
 message("TEST5")
