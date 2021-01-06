@@ -28,7 +28,7 @@ static void plus_avx2(DataChunk &args, ExpressionState &state, Vector &result) {
 		r = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(data1 + i));
         l = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(data2 + i));
 		tmp = _mm256_add_epi8(r, l);
-		_mm256_storeu_si256(reinterpret_cast<__m256i_u *>(result_data + i), tmp);
+		_mm256_storeu_si256(reinterpret_cast<__m256i *>(result_data + i), tmp);
 	}
 }
 
@@ -43,7 +43,7 @@ static void plus_avx512(DataChunk &args, ExpressionState &state, Vector &result)
         r = _mm512_loadu_si512(reinterpret_cast<const __m512i *>(data1 + i));
         l = _mm512_loadu_si512(reinterpret_cast<const __m512i *>(data2 + i));
         tmp = _mm512_add_epi8(r, l);
-        _mm512_storeu_epi8(reinterpret_cast<__m512i *>(result_data + i), tmp);
+        _mm512_storeu_si512(reinterpret_cast<__m512i *>(result_data + i), tmp);
     }
 }
 
