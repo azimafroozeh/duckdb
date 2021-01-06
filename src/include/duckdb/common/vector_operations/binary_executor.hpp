@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "iostream"
 #pragma once
 
 #include "duckdb/common/exception.hpp"
@@ -69,6 +70,7 @@ struct BinaryExecutor {
 			}
 		} else {
 			for (idx_t i = 0; i < count; i++) {
+				// this loop will be auto vectorized
 				auto lentry = ldata[LEFT_CONSTANT ? 0 : i];
 				auto rentry = rdata[RIGHT_CONSTANT ? 0 : i];
 				result_data[i] = OPWRAPPER::template Operation<FUNC, OP, LEFT_TYPE, RIGHT_TYPE, RESULT_TYPE>(

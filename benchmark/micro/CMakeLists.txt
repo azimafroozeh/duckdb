@@ -6,7 +6,7 @@ add_library(
   cast.cpp
   data_skipping.cpp
   in.cpp
-  storage.cpp)
+  storage.cpp azim.cpp)
 set(BENCHMARK_OBJECT_FILES
     ${BENCHMARK_OBJECT_FILES} $<TARGET_OBJECTS:duckdb_benchmark_micro>
     PARENT_SCOPE)

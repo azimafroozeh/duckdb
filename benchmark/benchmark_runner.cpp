@@ -180,7 +180,8 @@ void BenchmarkRunner::RunBenchmark(Benchmark *benchmark) {
 void BenchmarkRunner::RunBenchmarks() {
 	LogLine("Starting benchmark run.");
 	for (auto &benchmark : benchmarks) {
-		if(benchmark->name.compare("benchmark/micro/arithmetic/multiplications.benchmark") == 0)
+//		if(benchmark->name.compare("benchmark/micro/arithmetic/multiplications.benchmark") == 0)
+        if(benchmark->name.compare("azim") == 0)
 		RunBenchmark(benchmark);
 	}
 }

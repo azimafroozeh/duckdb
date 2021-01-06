@@ -6,9 +6,24 @@ name Integer Multiplication
 group micro
 
 load
-CREATE TABLE integers AS SELECT (i)::INTEGER AS i, (i)::INTEGER AS j FROM range(0, 1024) tbl(i);
+CREATE TABLE test(i TINYINT NOT NULL); INSERT INTO test SELECT (i / 65536) AS i FROM range(0, 1024) tbl(i);
 
 run
-SELECT plus(i,j) FROM integers
+SELECT MIN(i + i + i + i + i + i + i + i + i +
+           i + i + i + i + i + i + i + i + i +
+           i + i + i + i + i + i + i + i + i +
+           i + i + i + i + i + i + i + i + i +
+           i + i + i + i + i + i + i + i + i +
+           i + i + i + i + i + i + i + i + i +
+           i + i + i + i + i + i + i + i + i +
+           i + i + i + i + i + i + i + i + i +
+           i + i + i + i + i + i + i + i + i +
+           i + i + i + i + i + i + i + i + i +
+           i + i + i + i + i + i + i + i + i +
+           i + i + i + i + i + i + i + i + i +
+           i + i + i + i + i + i + i + i + i +
+           i + i + i + i + i + i + i + i + i +
+           i + i + i + i + i + i + i + i + i +
+           i + i + i + i + i + i + i + i + i)  FROM (SELECT first.i FROM (test AS first JOIN test AS second ON first.i = second.i) AS j) AS B;
 
 

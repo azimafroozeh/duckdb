@@ -19,6 +19,7 @@ static void plus_default(DataChunk &args, ExpressionState &state, Vector &result
     }
 	std::cout << "default";
     auto cpu_info = arrow::internal::CpuInfo::GetInstance();
+	std::cout << cpu_info->num_cores();
 }
 
 #if defined(ARROW_HAVE_RUNTIME_AVX2)
