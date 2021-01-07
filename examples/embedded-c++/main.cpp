@@ -12,11 +12,20 @@ int main() {
 #ifdef test
     con.Query("CREATE TABLE test(i TINYINT NOT NULL); INSERT INTO test SELECT (i) AS i FROM range(0, 100) tbl(i);");
 #else
-    con.Query("CREATE TABLE test(i TINYINT NOT NULL); INSERT INTO test SELECT (i / 32212254720) AS i FROM range(0, 32212254720) tbl(i);");
+    con.Query("CREATE TABLE test(i TINYINT NOT NULL); INSERT INTO test SELECT (i / 300000000) AS i FROM range(0, 300000000) tbl(i);");
 #endif
 
 	con.Query("PRAGMA show('table_name');");
     con.Query("PRAGMA enable_profiling;");
-    auto result = con.Query("SELECT plus(i, i) FROM test");
+    auto result = con.Query("SELECT (i + i + i + i + i + i + i + i + i + i + i +"
+	                        "           i + i + i + i + i + i + i + i + i + i + i +"
+	                        "           i + i + i + i + i + i + i + i + i + i + i +"
+	                        "           i + i + i + i + i + i + i + i + i + i + i +"
+	                        "           i + i + i + i + i + i + i + i + i + i + i +"
+	                        "           i + i + i + i + i + i + i + i + i + i + i +"
+	                        "           i + i + i + i + i + i + i + i + i + i + i +"
+	                        "           i + i + i + i + i + i + i + i + i + i + i +"
+	                        "           i + i + i + i + i + i + i + i + i + i + i +"
+	                        "           i + i + i + i + i + i + i + i + i + i + i ) FROM test");
 
 }

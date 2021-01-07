@@ -1,3 +1,5 @@
+convert_to_arch("avx" add.cpp)
+
 add_library_unity(
   duckdb_func_ops
   OBJECT
@@ -6,6 +8,13 @@ add_library_unity(
   bitwise.cpp
   multiply.cpp
   subtract.cpp)
+
 set(ALL_OBJECT_FILES
     ${ALL_OBJECT_FILES} $<TARGET_OBJECTS:duckdb_func_ops>
     PARENT_SCOPE)
+
+
+
+
+
+

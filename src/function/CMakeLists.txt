@@ -14,3 +14,5 @@ add_library_unity(
 set(ALL_OBJECT_FILES
     ${ALL_OBJECT_FILES} $<TARGET_OBJECTS:duckdb_function>
     PARENT_SCOPE)
+
+

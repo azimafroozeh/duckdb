@@ -28,6 +28,15 @@ if(CCACHE_PROGRAM)
   set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
 endif()
 
+function(convert_to_arch file_name arch)
+  if(NOT EXISTS ${CMAKE_SOURCE_DIR}/src/${arch}/${file_name})
+    file(WRITE ${CMAKE_SOURCE_DIR}/src/${arch}/${file_name} "#define ARCH ${arch}\n#include ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}\n#undef ARCH\n")
+    message("the file ${file_name} has been extended to arch ${arch}")
+  else()
+  endif()
+endfunction()
+
+
 # Determine install paths
 set(INSTALL_LIB_DIR
     lib
@@ -200,7 +209,7 @@ if(NOT MSVC)
   set(CMAKE_CXX_FLAGS_DEBUG
       "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 -DDEBUG -Wall ${M32_FLAG} ${CXX_EXTRA}")
   set(CMAKE_CXX_FLAGS_RELEASE
-      "-O3 -DNDEBUG ${M32_FLAG} ${CXX_EXTRA} -march=native")
+      "-O3 -DNDEBUG ${M32_FLAG} ${CXX_EXTRA} -fno-slp-vectorize -fno-vectorize")
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE} -g")
 
   set(CXX_EXTRA_DEBUG
@@ -456,3 +465,4 @@ MESSAGE(STATUS "CMAKE_CXX_FLAGS_DEBUG: " ${CMAKE_CXX_FLAGS_DEBUG} )
 MESSAGE(STATUS "CMAKE_CXX_FLAGS_RELEASE: " ${CMAKE_CXX_FLAGS_RELEASE} )
 MESSAGE(STATUS "CMAKE_C_FLAGS_DEBUG: " ${CMAKE_C_FLAGS_DEBUG})
 MESSAGE(STATUS "CMAKE_C_FLAGS_RELEASE: " ${CMAKE_C_FLAGS_RELEASE})
+
