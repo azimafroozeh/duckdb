@@ -15,10 +15,16 @@ add_library_unity(
   string_functions.cpp
   nested_functions.cpp
   math_functions.cpp
-  operators.cpp
   pragma_functions.cpp
   sequence_functions.cpp
   trigonometrics_functions.cpp)
+
+
+
 set(ALL_OBJECT_FILES
     ${ALL_OBJECT_FILES} $<TARGET_OBJECTS:duckdb_func_scalar>
     PARENT_SCOPE)
+
+#PARENT_SCOPEset(ALL_OBJECT_FILES
+#        ${ALL_OBJECT_FILES} $<TARGET_OBJECTS:operators_avx2>
+#        PARENT_SCOPE)

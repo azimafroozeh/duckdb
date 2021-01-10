@@ -38,13 +38,20 @@ void BuiltinFunctions::Initialize() {
 	RegisterDateFunctions();
 	RegisterGenericFunctions();
 	RegisterMathFunctions();
-	RegisterOperators();
 	RegisterSequenceFunctions();
 	RegisterStringFunctions();
 	RegisterNestedFunctions();
 	RegisterTrigonometricsFunctions();
 
 	RegisterPragmaFunctions();
+
+    int i = 0 ;
+	if (i == 0) {
+		RegisterOperators_AVX2();
+	}
+	else {
+		RegisterOperators();
+	}
 
 	// initialize collations
 	AddCollation("nocase", LowerFun::GetFunction(), true);

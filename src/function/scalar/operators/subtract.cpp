@@ -14,7 +14,7 @@ namespace duckdb {
 //===--------------------------------------------------------------------===//
 // - [subtract]
 //===--------------------------------------------------------------------===//
-template <> float SubtractOperator::Operation(float left, float right) {
+template <> float RENAME(SubtractOperator)::Operation(float left, float right) {
 	auto result = left - right;
 	if (!Value::FloatIsValid(result)) {
 		throw OutOfRangeException("Overflow in subtraction of float!");
@@ -22,7 +22,7 @@ template <> float SubtractOperator::Operation(float left, float right) {
 	return result;
 }
 
-template <> double SubtractOperator::Operation(double left, double right) {
+template <> double RENAME(SubtractOperator)::Operation(double left, double right) {
 	auto result = left - right;
 	if (!Value::DoubleIsValid(result)) {
 		throw OutOfRangeException("Overflow in subtraction of double!");
@@ -30,7 +30,7 @@ template <> double SubtractOperator::Operation(double left, double right) {
 	return result;
 }
 
-template <> interval_t SubtractOperator::Operation(interval_t left, interval_t right) {
+template <> interval_t RENAME(SubtractOperator)::Operation(interval_t left, interval_t right) {
 	interval_t result;
 	result.months = left.months - right.months;
 	result.days = left.days - right.days;
@@ -38,21 +38,21 @@ template <> interval_t SubtractOperator::Operation(interval_t left, interval_t r
 	return result;
 }
 
-template <> date_t SubtractOperator::Operation(date_t left, interval_t right) {
+template <> date_t RENAME(SubtractOperator)::Operation(date_t left, interval_t right) {
 	right.months = -right.months;
 	right.days = -right.days;
 	right.micros = -right.micros;
-	return AddOperator::Operation<date_t, interval_t, date_t>(left, right);
+	return RENAME(AddOperator)::Operation<date_t, interval_t, date_t>(left, right);
 }
 
-template <> timestamp_t SubtractOperator::Operation(timestamp_t left, interval_t right) {
+template <> timestamp_t RENAME(SubtractOperator)::Operation(timestamp_t left, interval_t right) {
 	right.months = -right.months;
 	right.days = -right.days;
 	right.micros = -right.micros;
-	return AddOperator::Operation<timestamp_t, interval_t, timestamp_t>(left, right);
+	return RENAME(AddOperator)::Operation<timestamp_t, interval_t, timestamp_t>(left, right);
 }
 
-template <> interval_t SubtractOperator::Operation(timestamp_t left, timestamp_t right) {
+template <> interval_t RENAME(SubtractOperator)::Operation(timestamp_t left, timestamp_t right) {
 	return Interval::GetDifference(left, right);
 }
 
@@ -61,7 +61,7 @@ template <> interval_t SubtractOperator::Operation(timestamp_t left, timestamp_t
 //===--------------------------------------------------------------------===//
 struct OverflowCheckedSubtract {
 	template <class SRCTYPE, class UTYPE> static inline bool Operation(SRCTYPE left, SRCTYPE right, SRCTYPE &result) {
-		UTYPE uresult = SubtractOperator::Operation<UTYPE, UTYPE, UTYPE>(UTYPE(left), UTYPE(right));
+		UTYPE uresult = RENAME(SubtractOperator)::Operation<UTYPE, UTYPE, UTYPE>(UTYPE(left), UTYPE(right));
 		if (uresult < NumericLimits<SRCTYPE>::Minimum() || uresult > NumericLimits<SRCTYPE>::Maximum()) {
 			return false;
 		}
@@ -70,19 +70,19 @@ struct OverflowCheckedSubtract {
 	}
 };
 
-template <> bool TrySubtractOperator::Operation(int8_t left, int8_t right, int8_t &result) {
+template <> bool  RENAME(TrySubtractOperator)::Operation(int8_t left, int8_t right, int8_t &result) {
 	return OverflowCheckedSubtract::Operation<int8_t, int16_t>(left, right, result);
 }
 
-template <> bool TrySubtractOperator::Operation(int16_t left, int16_t right, int16_t &result) {
+template <> bool  RENAME(TrySubtractOperator)::Operation(int16_t left, int16_t right, int16_t &result) {
 	return OverflowCheckedSubtract::Operation<int16_t, int32_t>(left, right, result);
 }
 
-template <> bool TrySubtractOperator::Operation(int32_t left, int32_t right, int32_t &result) {
+template <> bool  RENAME(TrySubtractOperator)::Operation(int32_t left, int32_t right, int32_t &result) {
 	return OverflowCheckedSubtract::Operation<int32_t, int64_t>(left, right, result);
 }
 
-template <> bool TrySubtractOperator::Operation(int64_t left, int64_t right, int64_t &result) {
+template <> bool  RENAME(TrySubtractOperator)::Operation(int64_t left, int64_t right, int64_t &result) {
 #if (__GNUC__ >= 5) || defined(__clang__)
 	if (__builtin_sub_overflow(left, right, &result)) {
 		return false;
@@ -123,19 +123,19 @@ template <class T, T min, T max> bool TryDecimalSubtractTemplated(T left, T righ
 	return true;
 }
 
-template <> bool TryDecimalSubtract::Operation(int16_t left, int16_t right, int16_t &result) {
+template <> bool RENAME(TryDecimalSubtract)::Operation(int16_t left, int16_t right, int16_t &result) {
 	return TryDecimalSubtractTemplated<int16_t, -9999, 9999>(left, right, result);
 }
 
-template <> bool TryDecimalSubtract::Operation(int32_t left, int32_t right, int32_t &result) {
+template <> bool RENAME(TryDecimalSubtract)::Operation(int32_t left, int32_t right, int32_t &result) {
 	return TryDecimalSubtractTemplated<int32_t, -999999999, 999999999>(left, right, result);
 }
 
-template <> bool TryDecimalSubtract::Operation(int64_t left, int64_t right, int64_t &result) {
+template <> bool RENAME(TryDecimalSubtract)::Operation(int64_t left, int64_t right, int64_t &result) {
 	return TryDecimalSubtractTemplated<int64_t, -999999999999999999, 999999999999999999>(left, right, result);
 }
 
-template <> bool TryDecimalSubtract::Operation(hugeint_t left, hugeint_t right, hugeint_t &result) {
+template <> bool RENAME(TryDecimalSubtract)::Operation(hugeint_t left, hugeint_t right, hugeint_t &result) {
 	result = left - right;
 	if (result <= -Hugeint::PowersOfTen[38] || result >= Hugeint::PowersOfTen[38]) {
 		return false;
@@ -143,9 +143,9 @@ template <> bool TryDecimalSubtract::Operation(hugeint_t left, hugeint_t right, 
 	return true;
 }
 
-template <> hugeint_t DecimalSubtractOverflowCheck::Operation(hugeint_t left, hugeint_t right) {
+template <> hugeint_t RENAME(DecimalSubtractOverflowCheck)::Operation(hugeint_t left, hugeint_t right) {
 	hugeint_t result;
-	if (!TryDecimalSubtract::Operation(left, right, result)) {
+	if (! RENAME(TryDecimalSubtract)::Operation(left, right, result)) {
 		throw OutOfRangeException("Overflow in subtract of DECIMAL(38) (%s - %s);", left.ToString(), right.ToString());
 	}
 	return result;
@@ -154,9 +154,9 @@ template <> hugeint_t DecimalSubtractOverflowCheck::Operation(hugeint_t left, hu
 //===--------------------------------------------------------------------===//
 // subtract time operator
 //===--------------------------------------------------------------------===//
-template <> dtime_t SubtractTimeOperator::Operation(dtime_t left, interval_t right) {
+template <> dtime_t RENAME(SubtractTimeOperator)::Operation(dtime_t left, interval_t right) {
 	right.micros = -right.micros;
-	return AddTimeOperator::Operation<dtime_t, interval_t, dtime_t>(left, right);
+	return RENAME(AddTimeOperator)::Operation<dtime_t, interval_t, dtime_t>(left, right);
 }
 
 } // namespace duckdb

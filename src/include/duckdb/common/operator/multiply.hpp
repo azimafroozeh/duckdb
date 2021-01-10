@@ -8,37 +8,38 @@
 
 #pragma once
 
+#include "duckdb/arch.h"
 #include "duckdb/common/types.hpp"
 #include "duckdb/common/exception.hpp"
 
 namespace duckdb {
 
-struct MultiplyOperator {
+struct RENAME(MultiplyOperator) {
 	template <class TA, class TB, class TR> static inline TR Operation(TA left, TB right) {
 		return left * right;
 	}
 };
 
-template <> float MultiplyOperator::Operation(float left, float right);
-template <> double MultiplyOperator::Operation(double left, double right);
-template <> interval_t MultiplyOperator::Operation(interval_t left, int64_t right);
-template <> interval_t MultiplyOperator::Operation(int64_t left, interval_t right);
+template <> float RENAME(MultiplyOperator)::Operation(float left, float right);
+template <> double RENAME(MultiplyOperator)::Operation(double left, double right);
+template <> interval_t RENAME(MultiplyOperator)::Operation(interval_t left, int64_t right);
+template <> interval_t RENAME(MultiplyOperator)::Operation(int64_t left, interval_t right);
 
-struct TryMultiplyOperator {
+struct RENAME(TryMultiplyOperator) {
 	template <class TA, class TB, class TR> static inline bool Operation(TA left, TB right, TR &result) {
 		throw InternalException("Unimplemented type for TryMultiplyOperator");
 	}
 };
 
-template <> bool TryMultiplyOperator::Operation(int8_t left, int8_t right, int8_t &result);
-template <> bool TryMultiplyOperator::Operation(int16_t left, int16_t right, int16_t &result);
-template <> bool TryMultiplyOperator::Operation(int32_t left, int32_t right, int32_t &result);
-template <> bool TryMultiplyOperator::Operation(int64_t left, int64_t right, int64_t &result);
+template <> bool RENAME(TryMultiplyOperator)::Operation(int8_t left, int8_t right, int8_t &result);
+template <> bool RENAME(TryMultiplyOperator)::Operation(int16_t left, int16_t right, int16_t &result);
+template <> bool RENAME(TryMultiplyOperator)::Operation(int32_t left, int32_t right, int32_t &result);
+template <> bool RENAME(TryMultiplyOperator)::Operation(int64_t left, int64_t right, int64_t &result);
 
 struct MultiplyOperatorOverflowCheck {
 	template <class TA, class TB, class TR> static inline TR Operation(TA left, TB right) {
 		TR result;
-		if (!TryMultiplyOperator::Operation(left, right, result)) {
+		if (!RENAME(TryMultiplyOperator)::Operation(left, right, result)) {
 			throw OutOfRangeException("Overflow in multiplication of %s (%d * %d)!", TypeIdToString(GetTypeId<TA>()),
 			                          left, right);
 		}
@@ -46,21 +47,21 @@ struct MultiplyOperatorOverflowCheck {
 	}
 };
 
-struct TryDecimalMultiply {
+struct RENAME(TryDecimalMultiply) {
 	template <class TA, class TB, class TR> static inline bool Operation(TA left, TB right, TR &result) {
 		throw InternalException("Unimplemented type for TryDecimalMultiply");
 	}
 };
 
-template <> bool TryDecimalMultiply::Operation(int16_t left, int16_t right, int16_t &result);
-template <> bool TryDecimalMultiply::Operation(int32_t left, int32_t right, int32_t &result);
-template <> bool TryDecimalMultiply::Operation(int64_t left, int64_t right, int64_t &result);
-template <> bool TryDecimalMultiply::Operation(hugeint_t left, hugeint_t right, hugeint_t &result);
+template <> bool RENAME(TryDecimalMultiply)::Operation(int16_t left, int16_t right, int16_t &result);
+template <> bool RENAME(TryDecimalMultiply)::Operation(int32_t left, int32_t right, int32_t &result);
+template <> bool RENAME(TryDecimalMultiply)::Operation(int64_t left, int64_t right, int64_t &result);
+template <> bool RENAME(TryDecimalMultiply)::Operation(hugeint_t left, hugeint_t right, hugeint_t &result);
 
-struct DecimalMultiplyOverflowCheck {
+struct RENAME(DecimalMultiplyOverflowCheck) {
 	template <class TA, class TB, class TR> static inline TR Operation(TA left, TB right) {
 		TR result;
-		if (!TryDecimalMultiply::Operation<TA, TB, TR>(left, right, result)) {
+		if (!RENAME(TryDecimalMultiply)::Operation<TA, TB, TR>(left, right, result)) {
 			throw OutOfRangeException("Overflow in multiplication of DECIMAL(18) (%d * %d). You might want to add an "
 			                          "explicit cast to a bigger decimal.",
 			                          left, right);
@@ -69,6 +70,6 @@ struct DecimalMultiplyOverflowCheck {
 	}
 };
 
-template <> hugeint_t DecimalMultiplyOverflowCheck::Operation(hugeint_t left, hugeint_t right);
+template <> hugeint_t RENAME(DecimalMultiplyOverflowCheck)::Operation(hugeint_t left, hugeint_t right);
 
 } // namespace duckdb

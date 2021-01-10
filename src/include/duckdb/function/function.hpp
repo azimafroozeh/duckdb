@@ -240,6 +240,8 @@ private:
 
 	// pragmas
 	void RegisterPragmaFunctions();
+
+	void RegisterOperators_AVX2();
 };
 
 } // namespace duckdb

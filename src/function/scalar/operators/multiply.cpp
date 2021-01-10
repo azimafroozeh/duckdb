@@ -7,12 +7,14 @@
 
 #include <limits>
 
+
+
 namespace duckdb {
 
 //===--------------------------------------------------------------------===//
 // * [multiply]
 //===--------------------------------------------------------------------===//
-template <> float MultiplyOperator::Operation(float left, float right) {
+template <> float RENAME(MultiplyOperator)::Operation(float left, float right) {
 	auto result = left * right;
 	if (!Value::FloatIsValid(result)) {
 		throw OutOfRangeException("Overflow in multiplication of float!");
@@ -20,7 +22,7 @@ template <> float MultiplyOperator::Operation(float left, float right) {
 	return result;
 }
 
-template <> double MultiplyOperator::Operation(double left, double right) {
+template <> double RENAME(MultiplyOperator)::Operation(double left, double right) {
 	auto result = left * right;
 	if (!Value::DoubleIsValid(result)) {
 		throw OutOfRangeException("Overflow in multiplication of double!");
@@ -28,15 +30,15 @@ template <> double MultiplyOperator::Operation(double left, double right) {
 	return result;
 }
 
-template <> interval_t MultiplyOperator::Operation(interval_t left, int64_t right) {
+template <> interval_t RENAME(MultiplyOperator)::Operation(interval_t left, int64_t right) {
 	left.months = MultiplyOperatorOverflowCheck::Operation<int32_t, int32_t, int32_t>(left.months, right);
 	left.days = MultiplyOperatorOverflowCheck::Operation<int32_t, int32_t, int32_t>(left.days, right);
 	left.micros = MultiplyOperatorOverflowCheck::Operation<int64_t, int64_t, int64_t>(left.micros, right);
 	return left;
 }
 
-template <> interval_t MultiplyOperator::Operation(int64_t left, interval_t right) {
-	return MultiplyOperator::Operation<interval_t, int64_t, interval_t>(right, left);
+template <> interval_t RENAME(MultiplyOperator)::Operation(int64_t left, interval_t right) {
+	return RENAME(MultiplyOperator)::Operation<interval_t, int64_t, interval_t>(right, left);
 }
 
 //===--------------------------------------------------------------------===//
@@ -44,7 +46,7 @@ template <> interval_t MultiplyOperator::Operation(int64_t left, interval_t righ
 //===--------------------------------------------------------------------===//
 struct OverflowCheckedMultiply {
 	template <class SRCTYPE, class UTYPE> static inline bool Operation(SRCTYPE left, SRCTYPE right, SRCTYPE &result) {
-		UTYPE uresult = MultiplyOperator::Operation<UTYPE, UTYPE, UTYPE>(UTYPE(left), UTYPE(right));
+		UTYPE uresult = RENAME(MultiplyOperator)::Operation<UTYPE, UTYPE, UTYPE>(UTYPE(left), UTYPE(right));
 		if (uresult < NumericLimits<SRCTYPE>::Minimum() || uresult > NumericLimits<SRCTYPE>::Maximum()) {
 			return false;
 		}
@@ -53,19 +55,19 @@ struct OverflowCheckedMultiply {
 	}
 };
 
-template <> bool TryMultiplyOperator::Operation(int8_t left, int8_t right, int8_t &result) {
+template <> bool RENAME(TryMultiplyOperator)::Operation(int8_t left, int8_t right, int8_t &result) {
 	return OverflowCheckedMultiply::Operation<int8_t, int16_t>(left, right, result);
 }
 
-template <> bool TryMultiplyOperator::Operation(int16_t left, int16_t right, int16_t &result) {
+template <> bool RENAME(TryMultiplyOperator)::Operation(int16_t left, int16_t right, int16_t &result) {
 	return OverflowCheckedMultiply::Operation<int16_t, int32_t>(left, right, result);
 }
 
-template <> bool TryMultiplyOperator::Operation(int32_t left, int32_t right, int32_t &result) {
+template <> bool RENAME(TryMultiplyOperator)::Operation(int32_t left, int32_t right, int32_t &result) {
 	return OverflowCheckedMultiply::Operation<int32_t, int64_t>(left, right, result);
 }
 
-template <> bool TryMultiplyOperator::Operation(int64_t left, int64_t right, int64_t &result) {
+template <> bool RENAME(TryMultiplyOperator)::Operation(int64_t left, int64_t right, int64_t &result) {
 #if (__GNUC__ >= 5) || defined(__clang__)
 	if (__builtin_mul_overflow(left, right, &result)) {
 		return false;
@@ -126,25 +128,25 @@ template <> bool TryMultiplyOperator::Operation(int64_t left, int64_t right, int
 // multiply  decimal with overflow check
 //===--------------------------------------------------------------------===//
 template <class T, T min, T max> bool TryDecimalMultiplyTemplated(T left, T right, T &result) {
-	if (!TryMultiplyOperator::Operation(left, right, result) || result < min || result > max) {
+	if (!RENAME(TryMultiplyOperator)::Operation(left, right, result) || result < min || result > max) {
 		return false;
 	}
 	return true;
 }
 
-template <> bool TryDecimalMultiply::Operation(int16_t left, int16_t right, int16_t &result) {
+template <> bool RENAME(TryDecimalMultiply)::Operation(int16_t left, int16_t right, int16_t &result) {
 	return TryDecimalMultiplyTemplated<int16_t, -9999, 9999>(left, right, result);
 }
 
-template <> bool TryDecimalMultiply::Operation(int32_t left, int32_t right, int32_t &result) {
+template <> bool RENAME(TryDecimalMultiply)::Operation(int32_t left, int32_t right, int32_t &result) {
 	return TryDecimalMultiplyTemplated<int32_t, -999999999, 999999999>(left, right, result);
 }
 
-template <> bool TryDecimalMultiply::Operation(int64_t left, int64_t right, int64_t &result) {
+template <> bool RENAME(TryDecimalMultiply)::Operation(int64_t left, int64_t right, int64_t &result) {
 	return TryDecimalMultiplyTemplated<int64_t, -999999999999999999, 999999999999999999>(left, right, result);
 }
 
-template <> bool TryDecimalMultiply::Operation(hugeint_t left, hugeint_t right, hugeint_t &result) {
+template <> bool RENAME(TryDecimalMultiply)::Operation(hugeint_t left, hugeint_t right, hugeint_t &result) {
 	result = left * right;
 	if (result <= -Hugeint::PowersOfTen[38] || result >= Hugeint::PowersOfTen[38]) {
 		return false;
@@ -152,9 +154,9 @@ template <> bool TryDecimalMultiply::Operation(hugeint_t left, hugeint_t right, 
 	return true;
 }
 
-template <> hugeint_t DecimalMultiplyOverflowCheck::Operation(hugeint_t left, hugeint_t right) {
+template <> hugeint_t RENAME(DecimalMultiplyOverflowCheck)::Operation(hugeint_t left, hugeint_t right) {
 	hugeint_t result;
-	if (!TryDecimalMultiply::Operation(left, right, result)) {
+	if (!RENAME(TryDecimalMultiply)::Operation(left, right, result)) {
 		throw OutOfRangeException("Overflow in multiplication of DECIMAL(38) (%s * %s). You might want to add an "
 		                          "explicit cast to a decimal with a smaller scale.",
 		                          left.ToString(), right.ToString());
