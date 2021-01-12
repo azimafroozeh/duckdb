@@ -18,7 +18,9 @@ int main() {
 
 	con.Query("PRAGMA show('table_name');");
     con.Query("PRAGMA enable_profiling;");
-    auto result = con.Query("SELECT (i + i + i + i + i + i + i + i + i + i + i +"
+
+
+    auto result = con.Query(" SELECT (i + i + i + i + i + i + i + i + i + i + i +"
 	                        "                                   i + i + i + i + i + i + i + i + i + i + i +"
 	                        "                                   i + i + i + i + i + i + i + i + i + i + i +"
 	                        "                                   i + i + i + i + i + i + i + i + i + i + i +"
