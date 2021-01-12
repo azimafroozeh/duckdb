@@ -28,7 +28,7 @@ static void plus_avx2(DataChunk &args, ExpressionState &state, Vector &result) {
         r = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(data1 + i));
         l = _mm256_loadu_si256(reinterpret_cast<const __m256i *>(data2 + i));
         tmp = _mm256_add_epi8(r, l);
-        _mm256_storeu_si256(reinterpret_cast<__m256i_u *>(result_data + i), tmp);
+        _mm256_storeu_si256(reinterpret_cast<__m256i *>(result_data + i), tmp);
     }
 }
 
