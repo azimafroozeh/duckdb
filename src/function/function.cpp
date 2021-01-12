@@ -45,7 +45,7 @@ void BuiltinFunctions::Initialize() {
 
 	RegisterPragmaFunctions();
 
-    int i = 1 ;
+    int i = 0 ;
 	if (i == 0) {
 		RegisterOperators_AVX2();
 	}

@@ -9,7 +9,7 @@ add_library(
         operators.cpp)
 
 target_compile_definitions(avx2 PRIVATE AVX2)
-set_target_properties (avx2 PROPERTIES COMPILE_FLAGS "-O3 -mavx512f")
+set_target_properties (avx2 PROPERTIES COMPILE_FLAGS "-mavx2")
 
 
 LIST(APPEND ALL_OBJECT_FILES
