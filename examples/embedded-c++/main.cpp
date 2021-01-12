@@ -27,7 +27,7 @@ int main() {
                             "                                   i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ("
                             "                                   i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ("
                             "                                   i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i , i ))))))))))))))))))))))))))"
-                            "  )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))) FROM (SELECT CAST(j * 0 as TINYINT) AS i FROM range(0, 300000000) tbl(j)) AS T");
+                            "  )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))) FROM (SELECT CAST(j % 2 as TINYINT) AS i FROM range(0, 300000000) tbl(j)) AS T");
 }
 
 //"SELECT plus(i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ("
@@ -40,4 +40,4 @@ int main() {
 //"                                   i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ("
 //"                                   i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ("
 //"                                   i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i , i ))))))))))))))))))))))))))"
-//"  )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))) FROM (SELECT CAST(j * 0 as TINYINT) AS i FROM range(0, 300000000) tbl(j)) AS T"
+//"  )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))) FROM (SELECT CAST(j % 2 as TINYINT) AS i FROM range(0, 300000000) tbl(j)) AS T"
