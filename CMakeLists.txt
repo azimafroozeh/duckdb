@@ -448,3 +448,5 @@ endif()
 
 
 add_subdirectory(examples/embedded-c++)
+
+MESSAGE(STATUS "CMAKE_CXX_FLAGS_RELEASE: " ${CMAKE_CXX_FLAGS_RELEASE} )
