@@ -199,8 +199,7 @@ endif()
 if(NOT MSVC)
   set(CMAKE_CXX_FLAGS_DEBUG
       "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 -DDEBUG -Wall ${M32_FLAG} ${CXX_EXTRA}")
-  set(CMAKE_CXX_FLAGS_RELEASE
-      "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG ${M32_FLAG} ${CXX_EXTRA} -fno-slp-vectorize -fno-vectorize")
+  set(CMAKE_CXX_FLAGS_RELEASE " -O3 -DNDEBUG ${M32_FLAG} ${CXX_EXTRA} -fno-slp-vectorize -fno-vectorize")
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE} -g")
 
   set(CXX_EXTRA_DEBUG
