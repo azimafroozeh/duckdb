@@ -2,12 +2,29 @@
 
 using namespace duckdb;
 
+
 int main() {
 	DuckDB db(nullptr);
 	Connection con(db);
 
-	con.Query("CREATE TABLE integers(i INTEGER)");
-	con.Query("INSERT INTO integers VALUES (3)");
-	auto result = con.Query("SELECT * FROM integers");
-	result->Print();
+	//#ifdef test
+	//    con.Query("CREATE TABLE test(i TINYINT NOT NULL); INSERT INTO test SELECT (i) AS i FROM range(0, 100) tbl(i);");
+	//#else
+	//    con.Query("CREATE TABLE test(i TINYINT NOT NULL); INSERT INTO test SELECT (i / 300000000) AS i FROM range(0, 1024) tbl(i);");
+	//	con.Query("TRANSACTION ");
+	//#endif
+
+	con.Query("PRAGMA show('table_name');");
+	con.Query("PRAGMA enable_profiling;");
+
+	auto result = con.Query(" SELECT (i + i + i + i + i + i + i + i + i + i + i +"
+	                        "                                   i + i + i + i + i + i + i + i + i + i + i +"
+	                        "                                   i + i + i + i + i + i + i + i + i + i + i +"
+	                        "                                   i + i + i + i + i + i + i + i + i + i + i +"
+	                        "                                   i + i + i + i + i + i + i + i + i + i + i +"
+	                        "                                   i + i + i + i + i + i + i + i + i + i + i +"
+	                        "                                   i + i + i + i + i + i + i + i + i + i + i +"
+	                        "                                   i + i + i + i + i + i + i + i + i + i + i +"
+	                        "                                   i + i + i + i + i + i + i + i + i + i + i +"
+	                        "                                   i + i + i + i + i + i + i + i + i + i + i ) FROM (SELECT CAST(j % 2 as TINYINT) AS i FROM range(0, 30000000) tbl(j)) AS T");
 }
