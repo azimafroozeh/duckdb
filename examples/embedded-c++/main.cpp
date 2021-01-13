@@ -17,16 +17,18 @@ int main(int argc, char** argv) {
 	//	con.Query("TRANSACTION ");
 	//#endif
 
+
+
     for (int i = 1; i < argc; ++i) {
 		std::string arg = argv[i];
 		if ((arg == "-h") || (arg == "--help")) {
 
 		} else if ((arg == "-t") || (arg == "--test")) {
 			arg = argv[++i];
-
+            string query;
             if (arg == "3") {
 
-                string query =
+                query =
                     R"(SELECT min ( plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,
                                     plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,
                                     plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,
@@ -44,7 +46,7 @@ int main(int argc, char** argv) {
             }
 			else if(arg == "2")
 			{
-                string query =
+                query =
                     R"(SELECT  min(i + i + i + i + i + i + i + i + i + i +
 	                            i + i + i + i + i + i + i + i + i + i +
                                 i + i + i + i + i + i + i + i + i + i +
@@ -60,11 +62,11 @@ int main(int argc, char** argv) {
 
                 auto result = con.Query(query);
 			}
-			else if(arg == "1") {
+			else if(arg == "4") {
 
                 con.Query("CREATE TABLE tbl AS SELECT (i % 2)::TINYINT i FROM range(300000000) tbl(i);");
 
-				string query = R"(select stats(i) from tbl limit 1)";
+				query = R"(select stats(i) from tbl limit 1)";
 
                 auto result = con.Query(query);
                 result->Print();
@@ -100,21 +102,23 @@ int main(int argc, char** argv) {
                result = con.Query(query);
 			   result->Print();
 			}
+            else if(arg == "1") {
+                con.Query("CREATE TABLE tbl AS SELECT (i % 2)::TINYINT i FROM range(300000000) tbl(i);");
+                query =
+                    R"(SELECT  min(i + i + i + i + i + i + i + i + i + i +
+	                            i + i + i + i + i + i + i + i + i + i +
+                                i + i + i + i + i + i + i + i + i + i +
+	                            i + i + i + i + i + i + i + i + i + i +
+                                i + i + i + i + i + i + i + i + i + i +
+                                i + i + i + i + i + i + i + i + i + i +
+                                i + i + i + i + i + i + i + i + i + i +
+	                            i + i + i + i + i + i + i + i + i + i +
+	                            i + i + i + i + i + i + i + i + i + i +
+	                            i + i + i + i + i + i + i + i + i + i )
+                                FROM tbl)";
+                con.Query(query);
+
+            }
 		}
 	}
-
-
-
 }
-
-//"SELECT plus(i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ("
-//"                                   i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ("
-//"                                   i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ("
-//"                                   i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ("
-//"                                   i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ("
-//"                                   i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ("
-//"                                   i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ("
-//"                                   i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ("
-//"                                   i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ("
-//"                                   i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i , i ))))))))))))))))))))))))))"
-//"  )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))) FROM (SELECT CAST(j % 2 as TINYINT) AS i FROM range(0, 300000000) tbl(j)) AS T"
