@@ -1,6 +1,8 @@
 #include "duckdb.hpp"
 #include "iostream"
 
+#include <duckdb/main/appender.hpp>
+
 using namespace duckdb;
 
 
@@ -21,11 +23,11 @@ int main(int argc, char** argv) {
 
 		} else if ((arg == "-t") || (arg == "--test")) {
 			arg = argv[++i];
-            con.Query("PRAGMA enable_profiling;");
-            if (arg == "1") {
+
+            if (arg == "3") {
 
                 string query =
-                    R"(SELECT       plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,
+                    R"(SELECT min ( plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,
                                     plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,
                                     plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,
                                     plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,
@@ -35,7 +37,7 @@ int main(int argc, char** argv) {
                                     plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,
                                     plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,
                                     plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,plus ( i ,
-                                    i ))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+                                    i )))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
                                     FROM (SELECT CAST(j % 2 as TINYINT) AS i FROM range(0, 300000000) tbl(j)) AS T)";
 
                 auto result = con.Query(query);
@@ -43,7 +45,7 @@ int main(int argc, char** argv) {
 			else if(arg == "2")
 			{
                 string query =
-                    R"(SELECT  (i + i + i + i + i + i + i + i + i + i +
+                    R"(SELECT  min(i + i + i + i + i + i + i + i + i + i +
 	                            i + i + i + i + i + i + i + i + i + i +
                                 i + i + i + i + i + i + i + i + i + i +
 	                            i + i + i + i + i + i + i + i + i + i +
@@ -57,6 +59,52 @@ int main(int argc, char** argv) {
                                 FROM (SELECT CAST(j % 2 as TINYINT) AS i FROM range(0, 300000000) tbl(j)) AS T)";
 
                 auto result = con.Query(query);
+			}
+			else if(arg == "1") {
+
+                con.Query("CREATE TABLE tbl(i TINYINT NOT NULL)");
+                Appender appender(con, "tbl");
+				for(int i = 0; i < 300000000; ++i){
+                    appender.AppendRow( i % 2);
+				}
+				appender.Close();
+
+
+				string query = R"(select stats(i) from tbl limit 1)";
+
+                auto result = con.Query(query);
+                result->Print();
+
+                con.Query("PRAGMA enable_profiling;");
+                query =
+                    R"(SELECT  min(i + i + i + i + i + i + i + i + i + i +
+	                            i + i + i + i + i + i + i + i + i + i +
+                                i + i + i + i + i + i + i + i + i + i +
+	                            i + i + i + i + i + i + i + i + i + i +
+                                i + i + i + i + i + i + i + i + i + i +
+                                i + i + i + i + i + i + i + i + i + i +
+                                i + i + i + i + i + i + i + i + i + i +
+	                            i + i + i + i + i + i + i + i + i + i +
+	                            i + i + i + i + i + i + i + i + i + i +
+	                            i + i + i + i + i + i + i + i + i + i )
+                                FROM tbl)";
+
+                con.Query(query);
+
+                query = R"(SELECT  stats(i + i + i + i + i + i + i + i + i + i +
+	                            i + i + i + i + i + i + i + i + i + i +
+                                i + i + i + i + i + i + i + i + i + i +
+	                            i + i + i + i + i + i + i + i + i + i +
+                                i + i + i + i + i + i + i + i + i + i +
+                                i + i + i + i + i + i + i + i + i + i +
+                                i + i + i + i + i + i + i + i + i + i +
+	                            i + i + i + i + i + i + i + i + i + i +
+	                            i + i + i + i + i + i + i + i + i + i +
+	                            i + i + i + i + i + i + i + i + i + i )
+                                FROM tbl limit 1)";
+
+               result = con.Query(query);
+			   result->Print();
 			}
 		}
 	}

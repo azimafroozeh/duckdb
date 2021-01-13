@@ -51,7 +51,7 @@ void PlusFun::RegisterFunction(BuiltinFunctions &set) {
 	// hex
 	ScalarFunctionSet functions("plus");
 	functions.AddFunction(
-	    ScalarFunction({LogicalType::TINYINT, LogicalType::TINYINT}, LogicalType::TINYINT, plus_avx512));
+	    ScalarFunction({LogicalType::TINYINT, LogicalType::TINYINT}, LogicalType::TINYINT, plus_avx2));
 
 	set.AddFunction(functions);
 }
