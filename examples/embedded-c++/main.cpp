@@ -56,19 +56,13 @@ int main(int argc, char** argv) {
 	                            i + i + i + i + i + i + i + i + i + i +
 	                            i + i + i + i + i + i + i + i + i + i )
 
-                                FROM (SELECT CAST(j % 2 as TINYINT) AS i FROM range(0, 300000000) tbl(j)) AS T)";
+                                FROM (SELECT CAST(j % 2 as TINYINT) AS i FROM range(0, 1000) tbl(j)) AS T)";
 
                 auto result = con.Query(query);
 			}
 			else if(arg == "1") {
 
-                con.Query("CREATE TABLE tbl(i TINYINT NOT NULL)");
-                Appender appender(con, "tbl");
-				for(int i = 0; i < 300000000; ++i){
-                    appender.AppendRow( i % 2);
-				}
-				appender.Close();
-
+                con.Query("CREATE TABLE tbl AS SELECT (i % 2)::TINYINT i FROM range(300000000) tbl(i);");
 
 				string query = R"(select stats(i) from tbl limit 1)";
 

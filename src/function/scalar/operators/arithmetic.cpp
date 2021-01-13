@@ -14,6 +14,8 @@
 #include "duckdb/common/types/time.hpp"
 #include "duckdb/common/types/timestamp.hpp"
 
+#include "iostream"
+
 namespace duckdb {
 
 template <class OP> static scalar_function_t GetScalarIntegerFunction(PhysicalType type) {
@@ -131,6 +133,7 @@ static unique_ptr<BaseStatistics> propagate_numeric_statistics(ClientContext &co
 		}
 	}
 	if (potential_overflow) {
+		std::cout << "azim is here";
 		new_min = Value(expr.return_type);
 		new_max = Value(expr.return_type);
 	} else {
