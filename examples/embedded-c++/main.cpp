@@ -103,7 +103,7 @@ int main(int argc, char** argv) {
                result = con.Query(query);
 			   result->Print();
 			}
-            else if(arg == "4") {
+            else if(arg == "1") {
                 // Load data
                 System::profile("loading", [&]() {
                   con.Query("CREATE TABLE tbl AS SELECT (i % 2)::TINYINT i FROM range(300000000) tbl(i);");
@@ -129,7 +129,7 @@ int main(int argc, char** argv) {
 
 
             }
-			else if(arg == "1"){
+			else if(arg == "4"){
                 con.Query("CREATE TABLE tbl(i TINYINT NOT NULL)");
                 Appender appender(con, "tbl");
                 for(int i = 0; i < 300000000; ++i){
