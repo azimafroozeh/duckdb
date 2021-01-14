@@ -3,6 +3,7 @@
 
 #include <duckdb/main/appender.hpp>
 
+#include "System.h"
 using namespace duckdb;
 
 
@@ -103,9 +104,15 @@ int main(int argc, char** argv) {
 			   result->Print();
 			}
             else if(arg == "4") {
-                con.Query("CREATE TABLE tbl AS SELECT (i % 2)::TINYINT i FROM range(300000000) tbl(i);");
-                query =
-                    R"(SELECT  min(i + i + i + i + i + i + i + i + i + i +
+                // Load data
+                System::profile("loading", [&]() {
+                  con.Query("CREATE TABLE tbl AS SELECT (i % 2)::TINYINT i FROM range(300000000) tbl(i);");
+                });
+
+                // Run queries
+                System::profile("queries", [&]() {
+                  query =
+                      R"(SELECT  min(i + i + i + i + i + i + i + i + i + i +
 	                            i + i + i + i + i + i + i + i + i + i +
                                 i + i + i + i + i + i + i + i + i + i +
 	                            i + i + i + i + i + i + i + i + i + i +
@@ -116,7 +123,10 @@ int main(int argc, char** argv) {
 	                            i + i + i + i + i + i + i + i + i + i +
 	                            i + i + i + i + i + i + i + i + i + i )
                                 FROM tbl)";
-                con.Query(query);
+                  con.Query(query);
+                });
+
+
 
             }
 			else if(arg == "1"){
