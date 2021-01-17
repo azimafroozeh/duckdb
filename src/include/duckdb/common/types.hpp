@@ -12,6 +12,8 @@
 #include "duckdb/common/constants.hpp"
 #include "duckdb/common/vector.hpp"
 
+#include "duckdb/memory/single_thread_pointer.h"
+
 namespace duckdb {
 
 class Serializer;
@@ -78,10 +80,10 @@ public:
 struct string_t;
 
 template <class T> using child_list_t = std::vector<std::pair<std::string, T>>;
-template <class T> using buffer_ptr = std::shared_ptr<T>;
+template <class T> using buffer_ptr = shared_ptr<T>;
 
 template <class T, typename... Args> buffer_ptr<T> make_buffer(Args &&... args) {
-	return std::make_shared<T>(std::forward<Args>(args)...);
+	return make_shared<T>(std::forward<Args>(args)...);
 }
 
 struct list_entry_t {
