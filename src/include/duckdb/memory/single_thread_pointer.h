@@ -1,336 +1,173 @@
-#include <iostream>
-#include <memory>
+// Minimal my_shared_ptr implementation.
 
-struct shared_ptr_control_base
-{
-    virtual ~shared_ptr_control_base() { }
+#include <cstdlib>  // nullptr_t
+#include <utility>  // swap
 
-    void decrement_count_shared() noexcept { m_shared--; }
-    void increment_count_shared() noexcept { m_shared++; }
+//template <class T>
+//T& move(T&& t) noexcept { return static_cast<T&&>(t); }
 
-    void decrement_count_weak() noexcept { m_weak--; }
-    void increment_count_weak() noexcept { m_weak++; }
+// static_cast to rvalue reference.
+#define MOVE(...) std::static_cast<std::remove_reference_t<decltype(__VA_ARGS__)>&&>(__VA_ARGS__)
 
-    virtual void destroy_shared(void*) noexcept = 0;
-    virtual void destruct()            noexcept = 0;
+// static_cast to identity.
+// The extra && aren't necessary, but make it more robust in case it's used with a non-reference.
+#define FORWARD(...) static_cast<decltype(__VA_ARGS__)&&>(__VA_ARGS__)
 
-    uint32_t m_shared = 1;
-    uint32_t m_weak   = 0;
+// Type erasure for run-time polymorphic behavior of deleter.
+class deleter_base {
+public:
+    virtual ~deleter_base() = default;
+    virtual void operator()(void*) = 0;
 };
 
-template <typename AllocatorTypeControl, typename AllocatorTypeShared, typename SharedType>
-struct shared_ptr_control_derived : shared_ptr_control_base
-{
-    shared_ptr_control_derived() = delete;
-    shared_ptr_control_derived(const shared_ptr_control_derived<AllocatorTypeControl, AllocatorTypeShared, SharedType>&) = delete;
-
-    shared_ptr_control_derived(shared_ptr_control_derived<AllocatorTypeControl, AllocatorTypeShared, SharedType>&& a_that) :
-        m_allocatorControl(std::move(a_that.m_allocatorControl)),
-        m_allocatorShared(std::move(a_that.m_allocatorShared))
-    {
-
-    }
-
-    shared_ptr_control_derived<AllocatorTypeControl, AllocatorTypeShared, SharedType>&
-    operator = (const shared_ptr_control_derived<AllocatorTypeControl, AllocatorTypeShared, SharedType>&) = delete;
-    shared_ptr_control_derived<AllocatorTypeControl, AllocatorTypeShared, SharedType>&
-    operator = (shared_ptr_control_derived<AllocatorTypeControl, AllocatorTypeShared, SharedType>&&) = delete;
-
-    shared_ptr_control_derived(AllocatorTypeControl&& a_allocatorC,
-                               AllocatorTypeShared&& a_allocatorS) :
-        m_allocatorControl(a_allocatorC),
-        m_allocatorShared(a_allocatorS)
-    {
-
-    }
-
-    void destroy_shared(void* a_pointer) noexcept
-    {
-        m_allocatorShared.destroy(static_cast<SharedType*>(a_pointer));
-        m_allocatorShared.deallocate(static_cast<SharedType*>(a_pointer), 1);
-    }
-
-    void destruct() noexcept
-    {
-        decltype(m_allocatorControl) l_temp = std::move(m_allocatorControl);
-        l_temp.m_allocator.destroy(this);
-        l_temp.m_allocator.deallocate(this, 1);
-    }
-
-    mutable AllocatorTypeControl m_allocatorControl;
-    mutable AllocatorTypeShared  m_allocatorShared;
+template <typename T>
+class deleter : public deleter_base {
+public:
+    void operator()(void* p) override { delete static_cast<T*>(p); }
 };
 
-template <template <typename t> class T, typename AllocatorTypeShared, typename SharedType>
-struct Wrangler
-{
-    T<shared_ptr_control_derived<Wrangler, AllocatorTypeShared, SharedType>> m_allocator;
-};
+template<typename T>
+class my_shared_ptr {
+public:
+    T* _ptr{ nullptr };            // contained pointer
+    long * _ref_count;             // reference counter
+    deleter_base* _deleter;        // deleter
 
-template <typename SharedType> struct single_thread_pointer;
+public:
+    // Default ctor, constructs an empty my_shared_ptr.
+    constexpr my_shared_ptr() noexcept = default;
+    // Construct empty my_shared_ptr.
+    constexpr my_shared_ptr(std::nullptr_t) noexcept { }
+    // Ctor wraps raw pointer.
+    my_shared_ptr(T* p) : _ptr{ p }, _ref_count{ new long{1} }, _deleter{ new deleter<T>() } { }
+    // Ctor wraps raw pointer of convertible type.
+    template<typename U>
+    my_shared_ptr(U* p) : _ptr{ p }, _ref_count{ new long(1) }, _deleter{ new deleter<U>() } { }
+    // Copy ctor.
+    my_shared_ptr(const my_shared_ptr& sp) noexcept : _ptr{ sp._ptr }, _ref_count{ sp._ref_count }, _deleter{ sp._deleter } {
+        if (_ptr)
+            ++(*_ref_count);
+    }
+    // Conversion ctor.
+    template<typename U>
+    my_shared_ptr(const my_shared_ptr<U>& sp) noexcept : _ptr{sp._ptr}, _ref_count{sp._ref_count}, _deleter{sp._deleter} {
+        if (_ptr)
+            ++(*_ref_count);
+    }
+    // Ctor unique.
+    my_shared_ptr(std::unique_ptr<T> up) : _ptr{ up.get() }, _ref_count{ new long{1} }, _deleter{ new deleter<T>() } { }
 
-template <typename SharedType> struct weak_ptr
-{
-    friend struct single_thread_pointer<SharedType>;
+    // Ctor unique.
+	template <class U>
+	my_shared_ptr(std::unique_ptr<U> up) : _ptr{ up.get() }, _ref_count{ new long{1} }, _deleter{ new deleter<U>() } { }
 
-    weak_ptr() : m_pointer(nullptr), m_control(nullptr) { }
+    // Move ctor, move-construct my_shared_ptr from sp.
+    my_shared_ptr(my_shared_ptr&& sp) noexcept : _ptr{ std::move(sp._ptr) }, _ref_count{ std::move(sp._ref_count) }, _deleter{ std::move(sp._deleter) } {
+        sp._ptr = nullptr;
+        sp._ref_count = nullptr;
+        sp._deleter = nullptr;
+    }
+    template<typename U>
+    explicit my_shared_ptr(my_shared_ptr<U>&& sp) noexcept : _ptr{ sp._ptr }, _ref_count{ sp._ref_count }, _deleter{ sp._deleter } {
+        sp._ptr = nullptr;
+        sp._ref_count = nullptr;
+        sp._deleter = nullptr;
+    }
 
-    weak_ptr(const weak_ptr<SharedType>& a_that) :
-        m_pointer(a_that.m_pointer),
-        m_control(a_that.m_control)
-    {
-        std::cout << "weak_ptr<T>::weak_ptr(const weak_ptr<T>&)" << std::endl;
-
-        if (m_control != nullptr)
+    // No effect if my_shared_ptr is empty or use_count() > 1, otherwise release the resources.
+    ~my_shared_ptr() {
+        if (_ptr)
         {
-            m_control->increment_count_weak();
-        }
-    }
-
-    weak_ptr(weak_ptr<SharedType>&& a_that) :
-        m_pointer(a_that.m_pointer),
-        m_control(a_that.m_control)
-    {
-        std::cout << "weak_ptr<T>::weak_ptr(shared_ptr<T>&&)" << std::endl;
-
-        a_that.m_pointer = nullptr;
-        a_that.m_control = nullptr;
-    }
-
-    weak_ptr(const single_thread_pointer<SharedType>& a_that) :
-        m_pointer(a_that.m_pointer),
-        m_control(a_that.m_control)
-    {
-        std::cout << "weak_ptr<T>::weak_ptr(const shared_ptr<T>&)" << std::endl;
-
-        if (m_control != nullptr)
-        {
-            m_control->increment_count_weak();
-        }
-    }
-
-    weak_ptr<SharedType>& operator=(const weak_ptr<SharedType>& a_rhs)
-    {
-        std::cout << "weak_ptr<T>& weak_ptr<T>::operator = (const weak_ptr<T>&)" << std::endl;
-
-        if (a_rhs.m_control != m_control)
-        {
-            if (m_control != nullptr) { decrement_destruct(); }
-
-            m_pointer = a_rhs.m_pointer;
-            m_control = a_rhs.m_control;
-
-            if (m_control != nullptr) { m_control->increment_count_weak(); }
-        }
-
-        return *this;
-    }
-
-    weak_ptr<SharedType>& operator=(weak_ptr<SharedType>&& a_rhs)
-    {
-        std::cout << "weak_ptr<T>& weak_ptr<T>::operator = (weak_ptr<T>&&)" << std::endl;
-
-        if (a_rhs.m_control != m_control)
-        {
-            if (m_control != nullptr) { decrement_destruct(); }
-        }
-
-        m_pointer = a_rhs.m_pointer;
-        m_control = a_rhs.m_control;
-        a_rhs.m_pointer = nullptr;
-        a_rhs.m_control = nullptr;
-
-        return *this;
-    }
-
-    weak_ptr<SharedType>& operator=(const single_thread_pointer<SharedType>& a_rhs)
-    {
-        std::cout << "weak_ptr<T>& weak_ptr<T>::operator = (const shared_ptr<T>&)" << std::endl;
-
-        if (a_rhs.m_control != m_control)
-        {
-            if (m_control != nullptr) { decrement_destruct(); }
-
-            m_pointer = a_rhs.m_pointer;
-            m_control = a_rhs.m_control;
-
-            if (m_control != nullptr) { m_control->increment_count_weak(); }
-        }
-
-        return *this;
-    }
-
-    ~weak_ptr()
-    {
-        if (m_control) { decrement_destruct(); }
-    }
-
-    void decrement_destruct()
-    {
-        m_control->decrement_count_weak();
-
-        if (m_control->m_weak == 0)
-        {
-            if (m_control->m_shared == 0)
+            if (--(*_ref_count) == 0)
             {
-                std::cout << "weak_ptr -> destructing control block" << std::endl;
-
-                m_control->destruct();
+                delete _ref_count;
+                (*_deleter)(_ptr);
+                delete _deleter;
             }
         }
     }
 
-    SharedType* operator->() const noexcept { return m_pointer; }
-
-    SharedType& operator*() const noexcept { return *m_pointer; }
-
-    explicit operator bool() const noexcept { return m_control ? m_control->m_shared : false; }
-
-    uint32_t use_count() const noexcept { return m_control ? m_control->m_shared : 0; }
-
-    SharedType* get() const noexcept { return m_pointer; };
-
-private:
-    SharedType* m_pointer;
-    shared_ptr_control_base* m_control;
-};
-
-template <typename SharedType> struct friend_struct;
-
-template <typename SharedType> struct single_thread_pointer {
-    friend friend_struct<SharedType>;
-    friend struct weak_ptr<SharedType>;
-
-	single_thread_pointer() : m_pointer(nullptr), m_control(nullptr) { }
-
-	single_thread_pointer(const single_thread_pointer<SharedType>& a_that) :
-        m_pointer(a_that.m_pointer),
-        m_control(a_that.m_control)
-    {
-        std::cout << "shared_ptr<T>::shared_ptr(const shared_ptr<T>&)" << std::endl;
-
-        if (m_control != nullptr)
-        {
-            m_control->increment_count_shared();
-        }
+    // Copy assignment.
+    my_shared_ptr& operator= (const my_shared_ptr& sp) noexcept {
+        // Copy and swap idiom.
+        my_shared_ptr tmp{sp};
+        tmp.swap(*this);
+        return *this;
     }
-
-	single_thread_pointer<SharedType>& operator=(const single_thread_pointer<SharedType>& a_rhs)
-    {
-        std::cout << "shared_ptr<T>& shared_ptr<T>::operator = (const shared_ptr<T>&)" << std::endl;
-
-        if (a_rhs.m_control != m_control)
-        {
-            if (m_control != nullptr) { decrement_destruct(); }
-
-            m_pointer = a_rhs.m_pointer;
-            m_control = a_rhs.m_control;
-
-            if (m_control != nullptr) { m_control->increment_count_shared(); }
-        }
-
+    // Move assignment.
+    my_shared_ptr& operator=(my_shared_ptr&& sp) noexcept {
+        my_shared_ptr{ std::move(sp) }.swap(*this);
+        return *this;
+    }
+    template<typename U>
+    my_shared_ptr& operator=(my_shared_ptr<U>&& sp) noexcept {
+        my_shared_ptr{ std::move(sp) }.swap(*this);
         return *this;
     }
 
-    ~single_thread_pointer()
-    {
-        if (m_control) { decrement_destruct(); }
+    // Dereference pointer to managed object.
+    T& operator*() const noexcept { return *_ptr; }
+    T* operator->() const noexcept { return _ptr; }
+
+    // Return the contained pointer.
+    T* get() const noexcept { return _ptr; }
+
+    // Return use count (use count == 0 if my_shared_ptr is empty).
+    long use_count() const noexcept {
+        if (_ptr)
+            return *_ref_count;
+        else
+            return 0;
     }
 
-    SharedType* operator->() const noexcept { return m_pointer; }
+    // Check if solely owns managed object.
+    bool unique() const noexcept { return (use_count() == 1) ? true : false; }
 
-    SharedType& operator*() const noexcept { return *m_pointer; }
+    // Check if there is an associated managed object.
+    explicit operator bool() const noexcept { return (_ptr) ? true : false; }
 
-    explicit operator bool() const noexcept { return m_pointer != nullptr; }
-
-    uint32_t use_count() const noexcept { return m_control ? m_control->m_shared : 0; }
-
-    void decrement_destruct()
-    {
-        m_control->decrement_count_shared();
-
-        if (m_control->m_shared == 0)
-        {
-            std::cout << "shared_ptr -> destructing shared object" << std::endl;
-
-            m_control->destroy_shared(m_pointer);
-
-            if (m_control->m_weak == 0) { std::cout << "shared_ptr -> destructing control block" << std::endl; m_control->destruct(); }
-        }
-    }
-
+    // Resets my_shared_ptr to empty.
     void reset() noexcept {
-		single_thread_pointer<SharedType>().swap(*this); }
+        my_shared_ptr tmp{};
+        tmp.swap(*this);
+    }
+    // Reset my_shared_ptr to wrap raw pointer p.
+    template<typename U>
+    void reset(U* p) {
+        my_shared_ptr tmp{p};
+        tmp.swap(*this);
+    }
 
-    void reset(SharedType* const a_pointer) noexcept {
-		single_thread_pointer<SharedType>(a_pointer).swap(*this); }
+    // Swap with another my_shared_ptr.
+    void swap(my_shared_ptr& sp) noexcept {
+        using std::swap;
+        swap(_ptr, sp._ptr);
+        swap(_ref_count, sp._ref_count);
+        swap(_deleter, sp._deleter);
+    }
 
-    void swap(single_thread_pointer<SharedType>& a_that) noexcept { std::swap(m_pointer, a_that.m_pointer); std::swap(m_control, a_that.m_control); }
 
-    SharedType* get() const noexcept { return m_pointer; };
-
-private:
-    SharedType* m_pointer;
-    shared_ptr_control_base* m_control;
 };
 
-template <typename SharedType>
-struct friend_struct
-{
-    template <typename T>
-    shared_ptr_control_base*& get_ref_pointer_control(T& a_r_shared_ptr) { return a_r_shared_ptr.m_control; }
+// Operator overloading.
+template<typename T, typename U>
+inline bool operator==(const my_shared_ptr<T>& sp1, const my_shared_ptr<U>& sp2) { return sp1.get() == sp2.get(); }
 
-    template <typename T>
-    SharedType*& get_ref_pointer_shared(T& a_r_shared_ptr) { return a_r_shared_ptr.m_pointer; }
-};
+template<typename T>
+inline bool operator==(const my_shared_ptr<T>& sp, std::nullptr_t) noexcept { return !sp; }
 
-template <typename SharedType,
-    template <typename t> class AllocatorControl = std::allocator,
-    template <typename t> class AllocatorShared = std::allocator,
-    typename... Args>
+template<typename T>
+inline bool operator==(std::nullptr_t, const my_shared_ptr<T>& sp) noexcept { return !sp; }
 
-single_thread_pointer<SharedType> make_shared(Args&&... args)
-{
-    using AllocatorControlCreate = Wrangler<AllocatorControl, AllocatorShared<SharedType>, SharedType>;
+template<typename T, typename U>
+inline bool operator!=(const my_shared_ptr<T>& sp1, const my_shared_ptr<U>& sp2) { return sp1.get() != sp2.get(); }
 
-    shared_ptr_control_derived<AllocatorControlCreate, AllocatorShared<SharedType>, SharedType>
-        l_d(std::move(AllocatorControlCreate()),
-            std::move(AllocatorShared<SharedType>()));
+template<typename T>
+inline bool operator!=(const my_shared_ptr<T>& sp, std::nullptr_t) noexcept { return bool{sp}; }
 
-    auto* l_pC = l_d.m_allocatorControl.m_allocator.allocate(1);
-    SharedType* l_pS = nullptr;
+template<typename T>
+inline bool operator!=(std::nullptr_t, const my_shared_ptr<T>& sp) noexcept { return bool{sp}; }
 
-    try
-    {
-        l_pS = l_d.m_allocatorShared.allocate(1);
-    }
-    catch (...)
-    {
-        l_d.m_allocatorControl.m_allocator.deallocate(l_pC, 1); throw;
-    }
-
-    try
-    {
-        l_d.m_allocatorControl.m_allocator.construct(l_pC, std::move(l_d));
-    }
-    catch (...)
-    {
-        l_d.m_allocatorControl.m_allocator.deallocate(l_pC, 1); l_d.m_allocatorShared.deallocate(l_pS, 1); throw;
-    }
-
-    try
-    {
-        l_pC->m_allocatorShared.construct(l_pS, SharedType(std::forward<Args>(args)...));
-    }
-    catch (...)
-    {
-        l_pC->m_allocatorControl.m_allocator.destroy(l_pC);
-        l_pC->m_allocatorControl.m_allocator.deallocate(l_pC, 1); l_pC->m_allocatorShared.deallocate(l_pS, 1); throw;
-    }
-
-	single_thread_pointer<SharedType> l_s;
-    friend_struct<SharedType>().get_ref_pointer_control(l_s) = l_pC;
-    friend_struct<SharedType>().get_ref_pointer_shared(l_s) = l_pS;
-    return l_s;
-}
-
+// Create my_shared_ptr that manages a new object.
+template<typename T, typename... Args>
+inline my_shared_ptr<T> my_make_shared(Args&&... args) { return my_shared_ptr<T>{new T{ std::forward<Args>(args)... }}; }
