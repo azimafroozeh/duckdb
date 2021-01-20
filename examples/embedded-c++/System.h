@@ -24,7 +24,7 @@ struct System
             auto fd=open("/dev/null",O_RDWR);
             dup2(fd,1);
             dup2(fd,2);
-            exit(execl("/usr/bin/perf","perf","record","-o",filename.c_str(),"-p",s.str().c_str(),nullptr));
+            exit(execl("/usr/bin/perf","perf","record","--call-graph","dwarf","-o",filename.c_str(),"-p",s.str().c_str(),nullptr));
         }
 
         // Run body
