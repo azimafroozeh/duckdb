@@ -128,7 +128,7 @@ int main(int argc, char** argv) {
             }
             else if(arg == "6") {
 				// Load data
-				con.Query("CREATE TABLE tbl AS SELECT (i % 2)::TINYINT i FROM range(4096) tbl(i);");
+				con.Query("CREATE TABLE tbl AS SELECT (i % 2)::TINYINT i FROM range(30000000) tbl(i);");
 
 				query = R"(SELECT  min(i + i + i + i + i + i + i + i + i + i +
 	                            i + i + i + i + i + i + i + i + i + i +
@@ -144,6 +144,25 @@ int main(int argc, char** argv) {
 				con.Query(query);
 
 			}
+            else if(arg == "7") {
+                // Load data
+                auto result = con.Query("explain CREATE TABLE tbl AS SELECT (i % 2)::TINYINT i FROM range(4096) tbl(i);");
+                con.Query(" CREATE TABLE tbl AS SELECT (i % 2)::TINYINT i FROM range(4096) tbl(i);");
+				result->Print();
+                query = R"(explain SELECT  min(i + i + i + i + i + i + i + i + i + i +
+	                            i + i + i + i + i + i + i + i + i + i +
+                                i + i + i + i + i + i + i + i + i + i +
+	                            i + i + i + i + i + i + i + i + i + i +
+                                i + i + i + i + i + i + i + i + i + i +
+                                i + i + i + i + i + i + i + i + i + i +
+                                i + i + i + i + i + i + i + i + i + i +
+	                            i + i + i + i + i + i + i + i + i + i +
+	                            i + i + i + i + i + i + i + i + i + i +
+	                            i + i + i + i + i + i + i + i + i + i )
+                                FROM tbl)";
+                result = con.Query(query);
+                result->Print();
+            }
 			else if(arg == "4"){
                 con.Query("CREATE TABLE tbl(i TINYINT NOT NULL)");
                 Appender appender(con, "tbl");

@@ -288,6 +288,7 @@ struct LogicalType {
 		return !(*this == rhs);
 	}
 
+
 	//! Serializes a LogicalType to a stand-alone binary blob
 	void Serialize(Serializer &serializer);
 	//! Deserializes a blob back into an LogicalType
