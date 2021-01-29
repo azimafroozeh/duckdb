@@ -92,13 +92,13 @@ void Vector::Slice(const SelectionVector &sel, idx_t count) {
 		// already a dictionary, slice the current dictionary
 		auto &current_sel = DictionaryVector::SelVector(*this);
 		auto sliced_dictionary = current_sel.Slice(sel, count);
-		buffer = make_unique<DictionaryBuffer>(move(sliced_dictionary));
+		buffer = make_buffer<DictionaryBuffer>(move(sliced_dictionary));
 		return;
 	}
 	auto child_ref = make_buffer<VectorChildBuffer>();
 	child_ref->data.Reference(*this);
 
-	auto dict_buffer = make_unique<DictionaryBuffer>(sel);
+	auto dict_buffer = make_buffer<DictionaryBuffer>(sel);
 	buffer = move(dict_buffer);
 	auxiliary = move(child_ref);
 	vector_type = VectorType::DICTIONARY_VECTOR;
@@ -573,7 +573,7 @@ void Vector::Orrify(idx_t count, VectorData &data) {
 			data.nullmask = &FlatVector::Nullmask(child);
 		} else {
 			// dictionary with non-flat child: create a new reference to the child and normalify it
-			auto new_aux = make_unique<VectorChildBuffer>();
+			auto new_aux = make_buffer<VectorChildBuffer>();
 			new_aux->data.Reference(child);
 			new_aux->data.Normalify(sel, count);
 
@@ -764,6 +764,7 @@ void Vector::Verify(const SelectionVector &sel, idx_t count) {
 	}
 
 	if (type.InternalType() == PhysicalType::STRUCT) {
+		D_ASSERT(type.child_types().size() > 0);
 		if (vector_type == VectorType::FLAT_VECTOR || vector_type == VectorType::CONSTANT_VECTOR) {
 			auto &children = StructVector::GetEntries(*this);
 			D_ASSERT(children.size() > 0);
@@ -774,6 +775,7 @@ void Vector::Verify(const SelectionVector &sel, idx_t count) {
 	}
 
 	if (type.InternalType() == PhysicalType::LIST) {
+		D_ASSERT(type.child_types().size() == 1);
 		if (vector_type == VectorType::CONSTANT_VECTOR) {
 			if (!ConstantVector::IsNull(*this)) {
 				ListVector::GetEntry(*this).Verify();
@@ -861,7 +863,16 @@ void StringVector::AddHandle(Vector &vector, unique_ptr<BufferHandle> handle) {
 		vector.auxiliary = make_buffer<VectorStringBuffer>();
 	}
 	auto &string_buffer = (VectorStringBuffer &)*vector.auxiliary;
-	string_buffer.AddHeapReference(make_unique<ManagedVectorBuffer>(move(handle)));
+	string_buffer.AddHeapReference(make_buffer<ManagedVectorBuffer>(move(handle)));
+}
+
+void StringVector::AddBuffer(Vector &vector, azim::shared_ptr<VectorBuffer> buffer) {
+	D_ASSERT(vector.type.InternalType() == PhysicalType::VARCHAR);
+	if (!vector.auxiliary) {
+		vector.auxiliary = make_buffer<VectorStringBuffer>();
+	}
+	auto &string_buffer = (VectorStringBuffer &)*vector.auxiliary;
+	string_buffer.AddHeapReference(move(buffer));
 }
 
 void StringVector::AddHeapReference(Vector &vector, Vector &other) {
@@ -936,9 +947,7 @@ ChunkCollection &ListVector::GetEntry(const Vector &vector) {
 void ListVector::SetEntry(Vector &vector, unique_ptr<ChunkCollection> cc) {
 	D_ASSERT(vector.type.id() == LogicalTypeId::LIST);
 	D_ASSERT(vector.vector_type == VectorType::FLAT_VECTOR || vector.vector_type == VectorType::CONSTANT_VECTOR);
-	if (!vector.auxiliary) {
-		vector.auxiliary = make_buffer<VectorListBuffer>();
-	}
+	vector.auxiliary = make_buffer<VectorListBuffer>();
 	D_ASSERT(vector.auxiliary);
 	D_ASSERT(vector.auxiliary->type == VectorBufferType::LIST_BUFFER);
 	((VectorListBuffer *)vector.auxiliary.get())->SetChild(move(cc));
