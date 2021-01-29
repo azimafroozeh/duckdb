@@ -80,10 +80,10 @@ public:
 struct string_t;
 
 template <class T> using child_list_t = std::vector<std::pair<std::string, T>>;
-template <class T> using buffer_ptr = my_shared_ptr<T>;
+template <class T> using buffer_ptr = azim::shared_ptr<T>;
 
 template <class T, typename... Args> buffer_ptr<T> make_buffer(Args &&... args) {
-	return my_make_shared<T>(std::forward<Args>(args)...);
+	return azim::make_shared<T>(std::forward<Args>(args)...);
 }
 
 struct list_entry_t {
