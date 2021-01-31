@@ -1,75 +1,95 @@
+//
+// Created by Azim Afroozeh on 1/27/21.
+/*
+ * it works
+ * all test are passed
+ * but has leakage
+ */
+//
+
+
+namespace azim {
 
 #include <cstdlib>  // nullptr_t
 
 template<typename T>
-class my_shared_ptr {
+class shared_ptr {
 public:
-    T* _ptr{ nullptr };            // contained pointer
-    uint64_t * _ref_count;             // reference counter
+    T* ptr;            // contained pointer
+    uint64_t * ref_count;             // reference counter
 
 public:
-    // Default ctor, constructs an empty my_shared_ptr.
-    constexpr my_shared_ptr() noexcept = default;
-    // Construct empty my_shared_ptr.
-    constexpr my_shared_ptr(std::nullptr_t) noexcept { }
-    // Ctor wraps raw pointer.
-    explicit my_shared_ptr(T* p) : _ptr{ p }, _ref_count{ new uint64_t(1) } { }
-    // Ctor wraps raw pointer of convertible type.
-    template<typename U>
-    my_shared_ptr(U* p) : _ptr{ p }, _ref_count{ new uint64_t(1) } { }
-    // Copy ctor.
-    my_shared_ptr(const my_shared_ptr& sp) noexcept : _ptr{ sp._ptr }, _ref_count{ sp._ref_count } {
-        if (_ptr)
-            ++(*_ref_count);
+    // Default constructor, constructs an empty shared_ptr.
+    shared_ptr() : ptr (nullptr), ref_count(nullptr){
     }
-    // Conversion ctor.
-    template<typename U>
-    my_shared_ptr(const my_shared_ptr<U>& sp) noexcept : _ptr{sp._ptr}, _ref_count{sp._ref_count} {
-        if (_ptr)
-            ++(*_ref_count);
+    // Construct empty shared_ptr.
+    shared_ptr(std::nullptr_t) : ptr (nullptr), ref_count(nullptr){
     }
-    // Ctor unique.
-    my_shared_ptr(std::unique_ptr<T> up) : _ptr{ up.get() }, _ref_count{ new uint64_t {1} } { }
+    // Construct a shared_ptr that wraps raw pointer.
+    shared_ptr(T* p) : ptr{ p } , ref_count{nullptr}{
+        ref_count = p ? new uint64_t(1) : nullptr;
+    }
+    // Construct a shared_ptr that wraps raw pointer of convertible type.
+    template<typename U>
+    shared_ptr(U* p) : ptr{ p }, ref_count{ p ? new uint64_t(1) : nullptr} { }
 
-    // Ctor unique.
-	template <class U>
-	my_shared_ptr(std::unique_ptr<U> up) : _ptr{ up.get() }, _ref_count{ new uint64_t {1} } { }
+    // Copy  constructor.
+    shared_ptr(const shared_ptr& sp) noexcept : ptr{ sp.ptr }, ref_count{ sp.ref_count } {
+        if (ptr)
+            ++(*ref_count);
+    }
+    // Conversion constructor.
+    template<typename U>
+    shared_ptr(const shared_ptr<U>& sp) noexcept : ptr{sp.ptr}, ref_count{sp.ref_count} {
+        if (ptr)
+            ++(*ref_count);
+    }
+
+    // Copy  constructor.
+    shared_ptr(shared_ptr&& sp) noexcept : ptr{ sp.ptr }, ref_count{ sp.ref_count } {
+        sp.ptr = nullptr;
+        sp.ref_count = nullptr;
+    }
+    // Conversion constructor.
+    template<typename U>
+    shared_ptr(shared_ptr<U>&& sp) noexcept : ptr{sp.ptr}, ref_count{sp.ref_count} {
+        sp.ptr = nullptr;
+        sp.ref_count = nullptr;
+    }
 
 
-    // No effect if my_shared_ptr is empty or use_count() > 1, otherwise release the resources.
-    ~my_shared_ptr() {
-        if (_ptr)
+    // No effect if shared_ptr is empty or use_count() > 1, otherwise release the resources.
+    ~shared_ptr() {
+        if (ptr && --(*ref_count) == 0)
         {
-            if (--(*_ref_count) == 0)
-            {
-                delete _ref_count;
-                delete _ptr;
-            }
+            delete ref_count;
+            delete ptr;
         }
     }
 
+
+
     // Copy assignment.
-    my_shared_ptr& operator= (const my_shared_ptr& sp) noexcept {
-        // Copy and swap idiom.
-		this->_ptr = sp._ptr;
-		this->_ref_count = sp._ref_count;
-        if (_ptr)
-            ++(*_ref_count);
+    shared_ptr& operator= (const shared_ptr& sp) noexcept {
+        this->ptr = sp.ptr;
+        this->ref_count = sp.ref_count;
+        if (ptr)
+            ++(*ref_count);
         return *this;
     }
 
 
     // Dereference pointer to managed object.
-    T& operator*() const noexcept { return *_ptr; }
-    T* operator->() const noexcept { return _ptr; }
+    T& operator*() const noexcept { return *ptr; }
+    T* operator->() const noexcept { return ptr; }
 
     // Return the contained pointer.
-    T* get() const noexcept { return _ptr; }
+    T* get() const noexcept { return ptr; }
 
-    // Return use count (use count == 0 if my_shared_ptr is empty).
+    // Return use count (use count == 0 if shared_ptr is empty).
     long use_count() const noexcept {
-        if (_ptr)
-            return *_ref_count;
+        if (ptr)
+            return *ref_count;
         else
             return 0;
     }
@@ -78,43 +98,46 @@ public:
     bool unique() const noexcept { return (use_count() == 1); }
 
     // Check if there is an associated managed object.
-    explicit operator bool() const noexcept { return (_ptr); }
+    explicit operator bool() const noexcept { return (ptr); }
 
-    // Resets my_shared_ptr to empty.
+    // Resets shared_ptr to empty.
     void reset() noexcept {
-		this->_ptr = nullptr;
-        this->_ref_count = nullptr;
+        this->ptr = nullptr;
+        this->ref_count = nullptr;
     }
-    // Reset my_shared_ptr to wrap raw pointer p.
+    // Reset shared_ptr to wrap raw pointer p.
     template<typename U>
     void reset(U* p) {
-		this->_ptr = p;
-		this->_ref_count = new uint64_t (1);
+        this->ptr = p;
+        this->ref_count = new uint64_t (1);
     }
-
-
-
 };
 
 // Operator overloading.
 template<typename T, typename U>
-inline bool operator==(const my_shared_ptr<T>& sp1, const my_shared_ptr<U>& sp2) { return sp1.get() == sp2.get(); }
+inline bool operator==(const shared_ptr<T>& sp1, const shared_ptr<U>& sp2) { return sp1.get() == sp2.get(); }
 
 template<typename T>
-inline bool operator==(const my_shared_ptr<T>& sp, std::nullptr_t) noexcept { return !sp; }
+inline bool operator==(const shared_ptr<T>& sp, std::nullptr_t) noexcept { return !sp; }
 
 template<typename T>
-inline bool operator==(std::nullptr_t, const my_shared_ptr<T>& sp) noexcept { return !sp; }
+inline bool operator==(std::nullptr_t, const shared_ptr<T>& sp) noexcept { return !sp; }
 
 template<typename T, typename U>
-inline bool operator!=(const my_shared_ptr<T>& sp1, const my_shared_ptr<U>& sp2) { return sp1.get() != sp2.get(); }
+inline bool operator!=(const shared_ptr<T>& sp1, const shared_ptr<U>& sp2) { return sp1.get() != sp2.get(); }
 
 template<typename T>
-inline bool operator!=(const my_shared_ptr<T>& sp, std::nullptr_t) noexcept { return bool{sp}; }
+inline bool operator!=(const shared_ptr<T>& sp, std::nullptr_t) noexcept { return bool{sp}; }
 
 template<typename T>
-inline bool operator!=(std::nullptr_t, const my_shared_ptr<T>& sp) noexcept { return bool{sp}; }
+inline bool operator!=(std::nullptr_t, const shared_ptr<T>& sp) noexcept { return bool{sp}; }
 
-// Create my_shared_ptr that manages a new object.
+// Create shared_ptr that manages a new object.
 template<typename T, typename... Args>
-inline my_shared_ptr<T> my_make_shared(Args&&... args) { return my_shared_ptr<T>{new T{ std::forward<Args>(args)... }}; }
+inline shared_ptr<T> make_shared(Args&&... args) {
+    return shared_ptr<T>{
+        new T{
+            std::forward<Args>(args)... }
+    };
+}
+}
