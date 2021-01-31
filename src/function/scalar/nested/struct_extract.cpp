@@ -30,7 +30,7 @@ static void struct_extract_fun(DataChunk &args, ExpressionState &state, Vector &
 	auto &vec = args.data[0];
 
 	vec.Verify(args.size());
-	if (vec.vector_type == VectorType::DICTIONARY_VECTOR) {
+	if (vec.buffer->vector_type == VectorType::DICTIONARY_VECTOR) {
 		auto &child = DictionaryVector::Child(vec);
 		auto &dict_sel = DictionaryVector::SelVector(vec);
 		auto &children = StructVector::GetEntries(child);
@@ -38,7 +38,7 @@ static void struct_extract_fun(DataChunk &args, ExpressionState &state, Vector &
 			throw Exception("Not enough struct entries for struct_extract");
 		}
 		auto &struct_child = children[info.index];
-		if (struct_child.first != info.key || struct_child.second->type != info.type) {
+		if (struct_child.first != info.key || struct_child.second->buffer->type != info.type) {
 			throw Exception("Struct key or type mismatch");
 		}
 		result.Slice(*struct_child.second, dict_sel, args.size());
@@ -48,7 +48,7 @@ static void struct_extract_fun(DataChunk &args, ExpressionState &state, Vector &
 			throw Exception("Not enough struct entries for struct_extract");
 		}
 		auto &struct_child = children[info.index];
-		if (struct_child.first != info.key || struct_child.second->type != info.type) {
+		if (struct_child.first != info.key || struct_child.second->buffer->type != info.type) {
 			throw Exception("Struct key or type mismatch");
 		}
 		result.Reference(*struct_child.second);

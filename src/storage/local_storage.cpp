@@ -246,10 +246,10 @@ static void update_data(Vector &data_vector, Vector &update_vector, Vector &row_
 }
 
 static void update_chunk(Vector &data, Vector &updates, Vector &row_ids, idx_t count, idx_t base_index) {
-	D_ASSERT(data.type == updates.type);
-	D_ASSERT(row_ids.type == LOGICAL_ROW_TYPE);
+	D_ASSERT(data.buffer->type == updates.buffer->type);
+	D_ASSERT(row_ids.buffer->type == LOGICAL_ROW_TYPE);
 
-	switch (data.type.InternalType()) {
+	switch (data.buffer->type.InternalType()) {
 	case PhysicalType::INT8:
 		update_data<int8_t>(data, updates, row_ids, count, base_index);
 		break;

@@ -132,7 +132,7 @@ inline string_t udf_varchar(string_t a, string_t b, string_t c) {
 template <typename TYPE> static void udf_unary_function(DataChunk &input, ExpressionState &state, Vector &result) {
 	switch (GetTypeId<TYPE>()) {
 	case PhysicalType::VARCHAR: {
-		result.vector_type = VectorType::FLAT_VECTOR;
+		result.buffer->vector_type = VectorType::FLAT_VECTOR;
 		auto result_data = FlatVector::GetData<string_t>(result);
 		auto ldata = FlatVector::GetData<string_t>(input.data[0]);
 
@@ -149,7 +149,7 @@ template <typename TYPE> static void udf_unary_function(DataChunk &input, Expres
 		break;
 	}
 	default: {
-		result.vector_type = VectorType::FLAT_VECTOR;
+		result.buffer->vector_type = VectorType::FLAT_VECTOR;
 		auto result_data = FlatVector::GetData<TYPE>(result);
 		auto ldata = FlatVector::GetData<TYPE>(input.data[0]);
 		auto nullmask = FlatVector::Nullmask(input.data[0]);
@@ -171,7 +171,7 @@ template <typename TYPE> static void udf_unary_function(DataChunk &input, Expres
 template <typename TYPE> static void udf_binary_function(DataChunk &input, ExpressionState &state, Vector &result) {
 	switch (GetTypeId<TYPE>()) {
 	case PhysicalType::VARCHAR: {
-		result.vector_type = VectorType::FLAT_VECTOR;
+		result.buffer->vector_type = VectorType::FLAT_VECTOR;
 		auto result_data = FlatVector::GetData<string_t>(result);
 		auto ldata = FlatVector::GetData<string_t>(input.data[1]);
 
@@ -188,7 +188,7 @@ template <typename TYPE> static void udf_binary_function(DataChunk &input, Expre
 		break;
 	}
 	default: {
-		result.vector_type = VectorType::FLAT_VECTOR;
+		result.buffer->vector_type = VectorType::FLAT_VECTOR;
 		auto result_data = FlatVector::GetData<TYPE>(result);
 		auto ldata = FlatVector::GetData<TYPE>(input.data[1]);
 		auto &nullmask = FlatVector::Nullmask(input.data[1]);
@@ -210,7 +210,7 @@ template <typename TYPE> static void udf_binary_function(DataChunk &input, Expre
 template <typename TYPE> static void udf_ternary_function(DataChunk &input, ExpressionState &state, Vector &result) {
 	switch (GetTypeId<TYPE>()) {
 	case PhysicalType::VARCHAR: {
-		result.vector_type = VectorType::FLAT_VECTOR;
+		result.buffer->vector_type = VectorType::FLAT_VECTOR;
 		auto result_data = FlatVector::GetData<string_t>(result);
 		auto ldata = FlatVector::GetData<string_t>(input.data[2]);
 
@@ -227,7 +227,7 @@ template <typename TYPE> static void udf_ternary_function(DataChunk &input, Expr
 		break;
 	}
 	default: {
-		result.vector_type = VectorType::FLAT_VECTOR;
+		result.buffer->vector_type = VectorType::FLAT_VECTOR;
 		auto result_data = FlatVector::GetData<TYPE>(result);
 		auto ldata = FlatVector::GetData<TYPE>(input.data[2]);
 		auto &nullmask = FlatVector::Nullmask(input.data[2]);
@@ -248,7 +248,7 @@ template <typename TYPE> static void udf_ternary_function(DataChunk &input, Expr
  */
 template <typename TYPE, int NUM_INPUT>
 static void udf_several_constant_input(DataChunk &input, ExpressionState &state, Vector &result) {
-	result.vector_type = VectorType::CONSTANT_VECTOR;
+	result.buffer->vector_type = VectorType::CONSTANT_VECTOR;
 	auto result_data = ConstantVector::GetData<TYPE>(result);
 	auto ldata = ConstantVector::GetData<TYPE>(input.data[NUM_INPUT - 1]);
 
@@ -262,7 +262,7 @@ static void udf_several_constant_input(DataChunk &input, ExpressionState &state,
  */
 template <typename TYPE> static void udf_max_constant(DataChunk &args, ExpressionState &state, Vector &result) {
 	TYPE max = 0;
-	result.vector_type = VectorType::CONSTANT_VECTOR;
+	result.buffer->vector_type = VectorType::CONSTANT_VECTOR;
 	for (idx_t col_idx = 0; col_idx < args.ColumnCount(); col_idx++) {
 		auto &input = args.data[col_idx];
 		if (ConstantVector::IsNull(input)) {
@@ -284,7 +284,7 @@ template <typename TYPE> static void udf_max_constant(DataChunk &args, Expressio
 template <typename TYPE> static void udf_max_flat(DataChunk &args, ExpressionState &state, Vector &result) {
 	D_ASSERT(TypeIsNumeric(GetTypeId<TYPE>()));
 
-	result.vector_type = VectorType::FLAT_VECTOR;
+	result.buffer->vector_type = VectorType::FLAT_VECTOR;
 	auto result_data = FlatVector::GetData<TYPE>(result);
 
 	// Initialize the result vector with the minimum value from TYPE.
@@ -292,7 +292,7 @@ template <typename TYPE> static void udf_max_flat(DataChunk &args, ExpressionSta
 
 	for (idx_t col_idx = 0; col_idx < args.ColumnCount(); col_idx++) {
 		auto &input = args.data[col_idx];
-		D_ASSERT((GetTypeId<TYPE>()) == input.type.InternalType());
+		D_ASSERT((GetTypeId<TYPE>()) == input.buffer->type.InternalType());
 		auto input_data = FlatVector::GetData<TYPE>(input);
 		for (idx_t i = 0; i < args.size(); ++i) {
 			if (result_data[i] < input_data[i]) {
@@ -458,7 +458,7 @@ struct UDFSum {
 	static void Update(Vector inputs[], idx_t input_count, Vector &states, idx_t count) {
 		D_ASSERT(input_count == 1);
 
-		if (inputs[0].vector_type == VectorType::CONSTANT_VECTOR && states.vector_type == VectorType::CONSTANT_VECTOR) {
+		if (inputs[0].buffer->vector_type == VectorType::CONSTANT_VECTOR && states.buffer->vector_type == VectorType::CONSTANT_VECTOR) {
 			if (ConstantVector::IsNull(inputs[0])) {
 				// constant NULL input in function that ignores NULL values
 				return;
@@ -467,7 +467,7 @@ struct UDFSum {
 			auto idata = ConstantVector::GetData<INPUT_TYPE>(inputs[0]);
 			auto sdata = ConstantVector::GetData<STATE_TYPE *>(states);
 			UDFSum::ConstantOperation<INPUT_TYPE, STATE_TYPE>(*sdata, idata, count);
-		} else if (inputs[0].vector_type == VectorType::FLAT_VECTOR && states.vector_type == VectorType::FLAT_VECTOR) {
+		} else if (inputs[0].buffer->vector_type == VectorType::FLAT_VECTOR && states.buffer->vector_type == VectorType::FLAT_VECTOR) {
 			auto idata = FlatVector::GetData<INPUT_TYPE>(inputs[0]);
 			auto sdata = FlatVector::GetData<STATE_TYPE *>(states);
 			auto nullmask = FlatVector::Nullmask(inputs[0]);
@@ -492,7 +492,7 @@ struct UDFSum {
 	template <class STATE_TYPE, class INPUT_TYPE>
 	static void SimpleUpdate(Vector inputs[], idx_t input_count, data_ptr_t state, idx_t count) {
 		D_ASSERT(input_count == 1);
-		switch (inputs[0].vector_type) {
+		switch (inputs[0].buffer->vector_type) {
 		case VectorType::CONSTANT_VECTOR: {
 			if (ConstantVector::IsNull(inputs[0])) {
 				return;
@@ -526,7 +526,7 @@ struct UDFSum {
 	}
 
 	template <class STATE_TYPE> static void Combine(Vector &source, Vector &target, idx_t count) {
-		D_ASSERT(source.type.id() == LogicalTypeId::POINTER && target.type.id() == LogicalTypeId::POINTER);
+		D_ASSERT(source.buffer->type.id() == LogicalTypeId::POINTER && target.buffer->type.id() == LogicalTypeId::POINTER);
 		auto sdata = FlatVector::GetData<STATE_TYPE *>(source);
 		auto tdata = FlatVector::GetData<STATE_TYPE *>(target);
 		// OP::template Combine<STATE_TYPE, OP>(*sdata[i], tdata[i]);
@@ -547,15 +547,15 @@ struct UDFSum {
 
 	template <class STATE_TYPE, class RESULT_TYPE>
 	static void Finalize(Vector &states, FunctionData *bind_data, Vector &result, idx_t count) {
-		if (states.vector_type == VectorType::CONSTANT_VECTOR) {
-			result.vector_type = VectorType::CONSTANT_VECTOR;
+		if (states.buffer->vector_type == VectorType::CONSTANT_VECTOR) {
+			result.buffer->vector_type = VectorType::CONSTANT_VECTOR;
 
 			auto sdata = ConstantVector::GetData<STATE_TYPE *>(states);
 			auto rdata = ConstantVector::GetData<RESULT_TYPE>(result);
 			UDFSum::Finalize<RESULT_TYPE, STATE_TYPE>(result, *sdata, rdata, ConstantVector::Nullmask(result), 0);
 		} else {
-			D_ASSERT(states.vector_type == VectorType::FLAT_VECTOR);
-			result.vector_type = VectorType::FLAT_VECTOR;
+			D_ASSERT(states.buffer->vector_type == VectorType::FLAT_VECTOR);
+			result.buffer->vector_type = VectorType::FLAT_VECTOR;
 
 			auto sdata = FlatVector::GetData<STATE_TYPE *>(states);
 			auto rdata = FlatVector::GetData<RESULT_TYPE>(result);

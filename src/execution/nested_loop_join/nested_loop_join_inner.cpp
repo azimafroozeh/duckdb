@@ -81,7 +81,7 @@ template <class NLTYPE, class OP>
 static idx_t nested_loop_join_inner_operator(Vector &left, Vector &right, idx_t left_size, idx_t right_size,
                                              idx_t &lpos, idx_t &rpos, SelectionVector &lvector,
                                              SelectionVector &rvector, idx_t current_match_count) {
-	switch (left.type.InternalType()) {
+	switch (left.buffer->type.InternalType()) {
 	case PhysicalType::BOOL:
 	case PhysicalType::INT8:
 		return NLTYPE::template Operation<int8_t, OP>(left, right, left_size, right_size, lpos, rpos, lvector, rvector,
@@ -119,7 +119,7 @@ template <class NLTYPE>
 idx_t nested_loop_join_inner(Vector &left, Vector &right, idx_t left_size, idx_t right_size, idx_t &lpos, idx_t &rpos,
                              SelectionVector &lvector, SelectionVector &rvector, idx_t current_match_count,
                              ExpressionType comparison_type) {
-	D_ASSERT(left.type == right.type);
+	D_ASSERT(left.buffer->type == right.buffer->type);
 	switch (comparison_type) {
 	case ExpressionType::COMPARE_EQUAL:
 		return nested_loop_join_inner_operator<NLTYPE, duckdb::Equals>(left, right, left_size, right_size, lpos, rpos,

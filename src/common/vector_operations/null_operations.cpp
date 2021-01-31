@@ -10,17 +10,17 @@
 namespace duckdb {
 
 template <bool INVERSE> void is_null_loop(Vector &input, Vector &result, idx_t count) {
-	D_ASSERT(result.type == LogicalType::BOOLEAN);
+	D_ASSERT(result.buffer->type == LogicalType::BOOLEAN);
 
-	if (input.vector_type == VectorType::CONSTANT_VECTOR) {
-		result.vector_type = VectorType::CONSTANT_VECTOR;
+	if (input.buffer->vector_type == VectorType::CONSTANT_VECTOR) {
+		result.buffer->vector_type = VectorType::CONSTANT_VECTOR;
 		auto result_data = ConstantVector::GetData<bool>(result);
 		*result_data = INVERSE ? !ConstantVector::IsNull(input) : ConstantVector::IsNull(input);
 	} else {
 		VectorData data;
 		input.Orrify(count, data);
 
-		result.vector_type = VectorType::FLAT_VECTOR;
+		result.buffer->vector_type = VectorType::FLAT_VECTOR;
 		auto result_data = FlatVector::GetData<bool>(result);
 		auto &nullmask = *data.nullmask;
 		for (idx_t i = 0; i < count; i++) {
@@ -42,7 +42,7 @@ bool VectorOperations::HasNotNull(Vector &input, idx_t count) {
 	if (count == 0) {
 		return false;
 	}
-	if (input.vector_type == VectorType::CONSTANT_VECTOR) {
+	if (input.buffer->vector_type == VectorType::CONSTANT_VECTOR) {
 		return !ConstantVector::IsNull(input);
 	} else {
 		VectorData data;
@@ -65,7 +65,7 @@ bool VectorOperations::HasNull(Vector &input, idx_t count) {
 	if (count == 0) {
 		return false;
 	}
-	if (input.vector_type == VectorType::CONSTANT_VECTOR) {
+	if (input.buffer->vector_type == VectorType::CONSTANT_VECTOR) {
 		return ConstantVector::IsNull(input);
 	} else {
 		VectorData data;

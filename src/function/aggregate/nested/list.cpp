@@ -34,7 +34,7 @@ static void list_update(Vector inputs[], idx_t input_count, Vector &state_vector
 	DataChunk insert_chunk;
 
 	vector<LogicalType> chunk_types;
-	chunk_types.push_back(input.type);
+	chunk_types.push_back(input.buffer->type);
 	insert_chunk.Initialize(chunk_types);
 	insert_chunk.SetCardinality(1);
 

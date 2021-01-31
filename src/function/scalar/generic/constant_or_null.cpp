@@ -22,7 +22,7 @@ static void constant_or_null(DataChunk &args, ExpressionState &state, Vector &re
 	auto &info = (ConstantOrNullBindData &)*func_expr.bind_info;
 	result.Reference(info.value);
 	for (idx_t idx = 0; idx < args.ColumnCount(); idx++) {
-		switch (args.data[idx].vector_type) {
+		switch (args.data[idx].buffer->vector_type) {
 		case VectorType::FLAT_VECTOR: {
 			auto &input_mask = FlatVector::Nullmask(args.data[idx]);
 			if (input_mask.any()) {

@@ -81,7 +81,7 @@ void TableDataWriter::WriteTableData(ClientContext &context) {
 		// for each column, we append whatever we can fit into the block
 		idx_t chunk_size = chunk.size();
 		for (idx_t i = 0; i < table.columns.size(); i++) {
-			D_ASSERT(chunk.data[i].type == table.columns[i].type);
+			D_ASSERT(chunk.data[i].buffer->type == table.columns[i].type);
 			AppendData(transaction, i, chunk.data[i], chunk_size);
 		}
 	}

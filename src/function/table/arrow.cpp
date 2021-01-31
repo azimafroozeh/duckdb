@@ -198,7 +198,7 @@ static void arrow_scan_function(ClientContext &context, const FunctionData *bind
 			nullmask.flip(); // arrow uses inverse nullmask logic
 		}
 
-		switch (output.data[col_idx].type.id()) {
+		switch (output.data[col_idx].buffer->type.id()) {
 		case LogicalTypeId::SQLNULL:
 			output.data[col_idx].Reference(Value());
 			break;
@@ -212,7 +212,7 @@ static void arrow_scan_function(ClientContext &context, const FunctionData *bind
 		case LogicalTypeId::HUGEINT:
 		case LogicalTypeId::DATE:
 			FlatVector::SetData(output.data[col_idx],
-			                    (data_ptr_t)array.buffers[1] + GetTypeIdSize(output.data[col_idx].type.InternalType()) *
+			                    (data_ptr_t)array.buffers[1] + GetTypeIdSize(output.data[col_idx].buffer->type.InternalType()) *
 			                                                       (data.chunk_offset + array.offset));
 			break;
 
@@ -259,7 +259,7 @@ static void arrow_scan_function(ClientContext &context, const FunctionData *bind
 			break;
 		}
 		default:
-			throw std::runtime_error("Unsupported type " + output.data[col_idx].type.ToString());
+			throw std::runtime_error("Unsupported type " + output.data[col_idx].buffer->type.ToString());
 		}
 	}
 	output.Verify();

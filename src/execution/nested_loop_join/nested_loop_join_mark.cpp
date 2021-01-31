@@ -35,7 +35,7 @@ static void mark_join_templated(Vector &left, Vector &right, idx_t lcount, idx_t
 
 template <class OP>
 static void mark_join_operator(Vector &left, Vector &right, idx_t lcount, idx_t rcount, bool found_match[]) {
-	switch (left.type.InternalType()) {
+	switch (left.buffer->type.InternalType()) {
 	case PhysicalType::BOOL:
 	case PhysicalType::INT8:
 		return mark_join_templated<int8_t, OP>(left, right, lcount, rcount, found_match);
@@ -58,7 +58,7 @@ static void mark_join_operator(Vector &left, Vector &right, idx_t lcount, idx_t 
 
 static void mark_join(Vector &left, Vector &right, idx_t lcount, idx_t rcount, bool found_match[],
                       ExpressionType comparison_type) {
-	D_ASSERT(left.type == right.type);
+	D_ASSERT(left.buffer->type == right.buffer->type);
 	switch (comparison_type) {
 	case ExpressionType::COMPARE_EQUAL:
 		return mark_join_operator<duckdb::Equals>(left, right, lcount, rcount, found_match);

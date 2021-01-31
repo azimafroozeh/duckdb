@@ -37,7 +37,7 @@ static void setseed_function(DataChunk &args, ExpressionState &state, Vector &re
 		info.context.random_engine.seed(norm_seed);
 	}
 
-	result.vector_type = VectorType::CONSTANT_VECTOR;
+	result.buffer->vector_type = VectorType::CONSTANT_VECTOR;
 	ConstantVector::SetNull(result, true);
 }
 

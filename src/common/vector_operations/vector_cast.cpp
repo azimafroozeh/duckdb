@@ -8,7 +8,7 @@
 namespace duckdb {
 
 template <class SRC, class OP> static void string_cast(Vector &source, Vector &result, idx_t count) {
-	D_ASSERT(result.type.InternalType() == PhysicalType::VARCHAR);
+	D_ASSERT(result.buffer->type.InternalType() == PhysicalType::VARCHAR);
 	UnaryExecutor::Execute<SRC, string_t, true>(source, result, count,
 	                                            [&](SRC input) { return OP::template Operation<SRC>(input, result); });
 }
@@ -21,37 +21,37 @@ static NotImplementedException UnimplementedCast(LogicalType source_type, Logica
 // NULL cast only works if all values in source are NULL, otherwise an unimplemented cast exception is thrown
 static void null_cast(Vector &source, Vector &result, idx_t count) {
 	if (VectorOperations::HasNotNull(source, count)) {
-		throw UnimplementedCast(source.type, result.type);
+		throw UnimplementedCast(source.buffer->type, result.buffer->type);
 	}
-	if (source.vector_type == VectorType::CONSTANT_VECTOR) {
-		result.vector_type = VectorType::CONSTANT_VECTOR;
+	if (source.buffer->vector_type == VectorType::CONSTANT_VECTOR) {
+		result.buffer->vector_type = VectorType::CONSTANT_VECTOR;
 		ConstantVector::SetNull(result, true);
 	} else {
-		result.vector_type = VectorType::FLAT_VECTOR;
+		result.buffer->vector_type = VectorType::FLAT_VECTOR;
 		FlatVector::Nullmask(result).set();
 	}
 }
 
 template <class T> static void to_decimal_cast(Vector &source, Vector &result, idx_t count) {
-	switch (result.type.InternalType()) {
+	switch (result.buffer->type.InternalType()) {
 	case PhysicalType::INT16:
 		UnaryExecutor::Execute<T, int16_t, true>(source, result, count, [&](T input) {
-			return CastToDecimal::Operation<T, int16_t>(input, result.type.width(), result.type.scale());
+			return CastToDecimal::Operation<T, int16_t>(input, result.buffer->type.width(), result.buffer->type.scale());
 		});
 		break;
 	case PhysicalType::INT32:
 		UnaryExecutor::Execute<T, int32_t, true>(source, result, count, [&](T input) {
-			return CastToDecimal::Operation<T, int32_t>(input, result.type.width(), result.type.scale());
+			return CastToDecimal::Operation<T, int32_t>(input, result.buffer->type.width(), result.buffer->type.scale());
 		});
 		break;
 	case PhysicalType::INT64:
 		UnaryExecutor::Execute<T, int64_t, true>(source, result, count, [&](T input) {
-			return CastToDecimal::Operation<T, int64_t>(input, result.type.width(), result.type.scale());
+			return CastToDecimal::Operation<T, int64_t>(input, result.buffer->type.width(), result.buffer->type.scale());
 		});
 		break;
 	case PhysicalType::INT128:
 		UnaryExecutor::Execute<T, hugeint_t, true>(source, result, count, [&](T input) {
-			return CastToDecimal::Operation<T, hugeint_t>(input, result.type.width(), result.type.scale());
+			return CastToDecimal::Operation<T, hugeint_t>(input, result.buffer->type.width(), result.buffer->type.scale());
 		});
 		break;
 	default:
@@ -60,25 +60,25 @@ template <class T> static void to_decimal_cast(Vector &source, Vector &result, i
 }
 
 template <class T> static void from_decimal_cast(Vector &source, Vector &result, idx_t count) {
-	switch (source.type.InternalType()) {
+	switch (source.buffer->type.InternalType()) {
 	case PhysicalType::INT16:
 		UnaryExecutor::Execute<int16_t, T, true>(source, result, count, [&](int16_t input) {
-			return CastFromDecimal::Operation<int16_t, T>(input, source.type.width(), source.type.scale());
+			return CastFromDecimal::Operation<int16_t, T>(input, source.buffer->type.width(), source.buffer->type.scale());
 		});
 		break;
 	case PhysicalType::INT32:
 		UnaryExecutor::Execute<int32_t, T, true>(source, result, count, [&](int32_t input) {
-			return CastFromDecimal::Operation<int32_t, T>(input, source.type.width(), source.type.scale());
+			return CastFromDecimal::Operation<int32_t, T>(input, source.buffer->type.width(), source.buffer->type.scale());
 		});
 		break;
 	case PhysicalType::INT64:
 		UnaryExecutor::Execute<int64_t, T, true>(source, result, count, [&](int64_t input) {
-			return CastFromDecimal::Operation<int64_t, T>(input, source.type.width(), source.type.scale());
+			return CastFromDecimal::Operation<int64_t, T>(input, source.buffer->type.width(), source.buffer->type.scale());
 		});
 		break;
 	case PhysicalType::INT128:
 		UnaryExecutor::Execute<hugeint_t, T, true>(source, result, count, [&](hugeint_t input) {
-			return CastFromDecimal::Operation<hugeint_t, T>(input, source.type.width(), source.type.scale());
+			return CastFromDecimal::Operation<hugeint_t, T>(input, source.buffer->type.width(), source.buffer->type.scale());
 		});
 		break;
 	default:
@@ -88,11 +88,11 @@ template <class T> static void from_decimal_cast(Vector &source, Vector &result,
 
 template <class SOURCE, class DEST, class POWERS_SOURCE, class POWERS_DEST>
 void decimal_scale_up_loop(Vector &source, Vector &result, idx_t count) {
-	D_ASSERT(result.type.scale() >= source.type.scale());
-	idx_t scale_difference = result.type.scale() - source.type.scale();
+	D_ASSERT(result.buffer->type.scale() >= source.buffer->type.scale());
+	idx_t scale_difference = result.buffer->type.scale() - source.buffer->type.scale();
 	auto multiply_factor = POWERS_DEST::PowersOfTen[scale_difference];
-	idx_t target_width = result.type.width() - scale_difference;
-	if (source.type.width() < target_width) {
+	idx_t target_width = result.buffer->type.width() - scale_difference;
+	if (source.buffer->type.width() < target_width) {
 		// type will always fit: no need to check limit
 		UnaryExecutor::Execute<SOURCE, DEST, true>(source, result, count, [&](SOURCE input) {
 			return Cast::Operation<SOURCE, DEST>(input) * multiply_factor;
@@ -103,7 +103,7 @@ void decimal_scale_up_loop(Vector &source, Vector &result, idx_t count) {
 		UnaryExecutor::Execute<SOURCE, DEST, true>(source, result, count, [&](SOURCE input) {
 			if (input >= limit || input <= -limit) {
 				throw OutOfRangeException("Casting value \"%s\" to type %s failed: value is out of range!",
-				                          Decimal::ToString(input, source.type.scale()), result.type.ToString());
+				                          Decimal::ToString(input, source.buffer->type.scale()), result.buffer->type.ToString());
 			}
 			return Cast::Operation<SOURCE, DEST>(input) * multiply_factor;
 		});
@@ -112,11 +112,11 @@ void decimal_scale_up_loop(Vector &source, Vector &result, idx_t count) {
 
 template <class SOURCE, class DEST, class POWERS_SOURCE>
 void decimal_scale_down_loop(Vector &source, Vector &result, idx_t count) {
-	D_ASSERT(result.type.scale() < source.type.scale());
-	idx_t scale_difference = source.type.scale() - result.type.scale();
-	idx_t target_width = result.type.width() + scale_difference;
+	D_ASSERT(result.buffer->type.scale() < source.buffer->type.scale());
+	idx_t scale_difference = source.buffer->type.scale() - result.buffer->type.scale();
+	idx_t target_width = result.buffer->type.width() + scale_difference;
 	auto divide_factor = POWERS_SOURCE::PowersOfTen[scale_difference];
-	if (source.type.width() < target_width) {
+	if (source.buffer->type.width() < target_width) {
 		// type will always fit: no need to check limit
 		UnaryExecutor::Execute<SOURCE, DEST, true>(
 		    source, result, count, [&](SOURCE input) { return Cast::Operation<SOURCE, DEST>(input / divide_factor); });
@@ -126,7 +126,7 @@ void decimal_scale_down_loop(Vector &source, Vector &result, idx_t count) {
 		UnaryExecutor::Execute<SOURCE, DEST, true>(source, result, count, [&](SOURCE input) {
 			if (input >= limit || input <= -limit) {
 				throw OutOfRangeException("Casting value \"%s\" to type %s failed: value is out of range!",
-				                          Decimal::ToString(input, source.type.scale()), result.type.ToString());
+				                          Decimal::ToString(input, source.buffer->type.scale()), result.buffer->type.ToString());
 			}
 			return Cast::Operation<SOURCE, DEST>(input / divide_factor);
 		});
@@ -135,13 +135,13 @@ void decimal_scale_down_loop(Vector &source, Vector &result, idx_t count) {
 
 template <class SOURCE, class POWERS_SOURCE>
 static void decimal_decimal_cast_switch(Vector &source, Vector &result, idx_t count) {
-	source.type.Verify();
-	result.type.Verify();
+	source.buffer->type.Verify();
+	result.buffer->type.Verify();
 
 	// we need to either multiply or divide by the difference in scales
-	if (result.type.scale() >= source.type.scale()) {
+	if (result.buffer->type.scale() >= source.buffer->type.scale()) {
 		// multiply
-		switch (result.type.InternalType()) {
+		switch (result.buffer->type.InternalType()) {
 		case PhysicalType::INT16:
 			decimal_scale_up_loop<SOURCE, int16_t, POWERS_SOURCE, NumericHelper>(source, result, count);
 			break;
@@ -159,7 +159,7 @@ static void decimal_decimal_cast_switch(Vector &source, Vector &result, idx_t co
 		}
 	} else {
 		// divide
-		switch (result.type.InternalType()) {
+		switch (result.buffer->type.InternalType()) {
 		case PhysicalType::INT16:
 			decimal_scale_down_loop<SOURCE, int16_t, POWERS_SOURCE>(source, result, count);
 			break;
@@ -180,7 +180,7 @@ static void decimal_decimal_cast_switch(Vector &source, Vector &result, idx_t co
 
 static void decimal_cast_switch(Vector &source, Vector &result, idx_t count) {
 	// now switch on the result type
-	switch (result.type.id()) {
+	switch (result.buffer->type.id()) {
 	case LogicalTypeId::BOOLEAN:
 		from_decimal_cast<bool>(source, result, count);
 		break;
@@ -202,7 +202,7 @@ static void decimal_cast_switch(Vector &source, Vector &result, idx_t count) {
 	case LogicalTypeId::DECIMAL: {
 		// decimal to decimal cast
 		// first we need to figure out the source and target internal types
-		switch (source.type.InternalType()) {
+		switch (source.buffer->type.InternalType()) {
 		case PhysicalType::INT16:
 			decimal_decimal_cast_switch<int16_t, NumericHelper>(source, result, count);
 			break;
@@ -227,28 +227,28 @@ static void decimal_cast_switch(Vector &source, Vector &result, idx_t count) {
 		from_decimal_cast<double>(source, result, count);
 		break;
 	case LogicalTypeId::VARCHAR: {
-		switch (source.type.InternalType()) {
+		switch (source.buffer->type.InternalType()) {
 		case PhysicalType::INT16:
 			UnaryExecutor::Execute<int16_t, string_t, true>(source, result, count, [&](int16_t input) {
-				return StringCastFromDecimal::Operation<int16_t>(input, source.type.width(), source.type.scale(),
+				return StringCastFromDecimal::Operation<int16_t>(input, source.buffer->type.width(), source.buffer->type.scale(),
 				                                                 result);
 			});
 			break;
 		case PhysicalType::INT32:
 			UnaryExecutor::Execute<int32_t, string_t, true>(source, result, count, [&](int32_t input) {
-				return StringCastFromDecimal::Operation<int32_t>(input, source.type.width(), source.type.scale(),
+				return StringCastFromDecimal::Operation<int32_t>(input, source.buffer->type.width(), source.buffer->type.scale(),
 				                                                 result);
 			});
 			break;
 		case PhysicalType::INT64:
 			UnaryExecutor::Execute<int64_t, string_t, true>(source, result, count, [&](int64_t input) {
-				return StringCastFromDecimal::Operation<int64_t>(input, source.type.width(), source.type.scale(),
+				return StringCastFromDecimal::Operation<int64_t>(input, source.buffer->type.width(), source.buffer->type.scale(),
 				                                                 result);
 			});
 			break;
 		case PhysicalType::INT128:
 			UnaryExecutor::Execute<hugeint_t, string_t, true>(source, result, count, [&](hugeint_t input) {
-				return StringCastFromDecimal::Operation<hugeint_t>(input, source.type.width(), source.type.scale(),
+				return StringCastFromDecimal::Operation<hugeint_t>(input, source.buffer->type.width(), source.buffer->type.scale(),
 				                                                   result);
 			});
 			break;
@@ -265,7 +265,7 @@ static void decimal_cast_switch(Vector &source, Vector &result, idx_t count) {
 
 template <class SRC> static void numeric_cast_switch(Vector &source, Vector &result, idx_t count) {
 	// now switch on the result type
-	switch (result.type.id()) {
+	switch (result.buffer->type.id()) {
 	case LogicalTypeId::BOOLEAN:
 		UnaryExecutor::Execute<SRC, bool, duckdb::Cast, true>(source, result, count);
 		break;
@@ -311,7 +311,7 @@ template <class SRC> static void numeric_cast_switch(Vector &source, Vector &res
 
 template <class OP> static void string_cast_numeric_switch(Vector &source, Vector &result, idx_t count) {
 	// now switch on the result type
-	switch (result.type.id()) {
+	switch (result.buffer->type.id()) {
 	case LogicalTypeId::BOOLEAN:
 		UnaryExecutor::Execute<string_t, bool, OP, true>(source, result, count);
 		break;
@@ -350,7 +350,7 @@ template <class OP> static void string_cast_numeric_switch(Vector &source, Vecto
 
 static void string_cast_switch(Vector &source, Vector &result, idx_t count, bool strict = false) {
 	// now switch on the result type
-	switch (result.type.id()) {
+	switch (result.buffer->type.id()) {
 	case LogicalTypeId::DATE:
 		if (strict) {
 			UnaryExecutor::Execute<string_t, date_t, duckdb::StrictCastToDate, true>(source, result, count);
@@ -383,7 +383,7 @@ static void string_cast_switch(Vector &source, Vector &result, idx_t count, bool
 
 static void date_cast_switch(Vector &source, Vector &result, idx_t count) {
 	// now switch on the result type
-	switch (result.type.id()) {
+	switch (result.buffer->type.id()) {
 	case LogicalTypeId::VARCHAR:
 		// date to varchar
 		string_cast<date_t, duckdb::CastFromDate>(source, result, count);
@@ -400,7 +400,7 @@ static void date_cast_switch(Vector &source, Vector &result, idx_t count) {
 
 static void time_cast_switch(Vector &source, Vector &result, idx_t count) {
 	// now switch on the result type
-	switch (result.type.id()) {
+	switch (result.buffer->type.id()) {
 	case LogicalTypeId::VARCHAR:
 		// time to varchar
 		string_cast<dtime_t, duckdb::CastFromTime>(source, result, count);
@@ -413,7 +413,7 @@ static void time_cast_switch(Vector &source, Vector &result, idx_t count) {
 
 static void timestamp_cast_switch(Vector &source, Vector &result, idx_t count) {
 	// now switch on the result type
-	switch (result.type.id()) {
+	switch (result.buffer->type.id()) {
 	case LogicalTypeId::VARCHAR:
 		// timestamp to varchar
 		string_cast<timestamp_t, duckdb::CastFromTimestamp>(source, result, count);
@@ -434,7 +434,7 @@ static void timestamp_cast_switch(Vector &source, Vector &result, idx_t count) {
 
 static void interval_cast_switch(Vector &source, Vector &result, idx_t count) {
 	// now switch on the result type
-	switch (result.type.id()) {
+	switch (result.buffer->type.id()) {
 	case LogicalTypeId::VARCHAR:
 		// time to varchar
 		string_cast<interval_t, duckdb::StringCast>(source, result, count);
@@ -447,7 +447,7 @@ static void interval_cast_switch(Vector &source, Vector &result, idx_t count) {
 
 static void blob_cast_switch(Vector &source, Vector &result, idx_t count) {
 	// now switch on the result type
-	switch (result.type.id()) {
+	switch (result.buffer->type.id()) {
 	case LogicalTypeId::VARCHAR:
 		// blob to varchar
 		string_cast<string_t, duckdb::CastFromBlob>(source, result, count);
@@ -459,12 +459,12 @@ static void blob_cast_switch(Vector &source, Vector &result, idx_t count) {
 }
 
 static void value_string_cast_switch(Vector &source, Vector &result, idx_t count) {
-	switch (result.type.id()) {
+	switch (result.buffer->type.id()) {
 	case LogicalTypeId::VARCHAR:
-		if (source.vector_type == VectorType::CONSTANT_VECTOR) {
-			result.vector_type = source.vector_type;
+		if (source.buffer->vector_type == VectorType::CONSTANT_VECTOR) {
+			result.buffer->vector_type = source.buffer->vector_type;
 		} else {
-			result.vector_type = VectorType::FLAT_VECTOR;
+			result.buffer->vector_type = VectorType::FLAT_VECTOR;
 		}
 		for (idx_t i = 0; i < count; i++) {
 			auto src_val = source.GetValue(i);
@@ -479,9 +479,9 @@ static void value_string_cast_switch(Vector &source, Vector &result, idx_t count
 }
 
 void VectorOperations::Cast(Vector &source, Vector &result, idx_t count, bool strict) {
-	D_ASSERT(source.type != result.type);
+	D_ASSERT(source.buffer->type != result.buffer->type);
 	// first switch on source type
-	switch (source.type.id()) {
+	switch (source.buffer->type.id()) {
 	case LogicalTypeId::BOOLEAN:
 		numeric_cast_switch<bool>(source, result, count);
 		break;
@@ -529,7 +529,7 @@ void VectorOperations::Cast(Vector &source, Vector &result, idx_t count, bool st
 		break;
 	case LogicalTypeId::SQLNULL: {
 		// cast a NULL to another type, just copy the properties and change the type
-		result.vector_type = VectorType::CONSTANT_VECTOR;
+		result.buffer->vector_type = VectorType::CONSTANT_VECTOR;
 		ConstantVector::SetNull(result, true);
 		break;
 	}
@@ -538,7 +538,7 @@ void VectorOperations::Cast(Vector &source, Vector &result, idx_t count, bool st
 		value_string_cast_switch(source, result, count);
 		break;
 	default:
-		throw UnimplementedCast(source.type, result.type);
+		throw UnimplementedCast(source.buffer->type, result.buffer->type);
 	}
 }
 

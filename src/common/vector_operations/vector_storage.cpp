@@ -24,7 +24,7 @@ void VectorOperations::WriteToStorage(Vector &source, idx_t count, data_ptr_t ta
 	VectorData vdata;
 	source.Orrify(count, vdata);
 
-	switch (source.type.InternalType()) {
+	switch (source.buffer->type.InternalType()) {
 	case PhysicalType::BOOL:
 	case PhysicalType::INT8:
 		CopyToStorageLoop<int8_t>(vdata, count, target);
@@ -75,8 +75,8 @@ template <class T> static void ReadFromStorageLoop(data_ptr_t source, idx_t coun
 }
 
 void VectorOperations::ReadFromStorage(data_ptr_t source, idx_t count, Vector &result) {
-	result.vector_type = VectorType::FLAT_VECTOR;
-	switch (result.type.InternalType()) {
+	result.buffer->vector_type = VectorType::FLAT_VECTOR;
+	switch (result.buffer->type.InternalType()) {
 	case PhysicalType::BOOL:
 	case PhysicalType::INT8:
 		ReadFromStorageLoop<int8_t>(source, count, result);

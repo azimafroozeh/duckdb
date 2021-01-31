@@ -251,9 +251,9 @@ static void string_split_executor(DataChunk &args, ExpressionState &state, Vecto
 	}
 
 	D_ASSERT(list_child->Count() == total_len);
-	if (args.data[0].vector_type == VectorType::CONSTANT_VECTOR &&
-	    args.data[1].vector_type == VectorType::CONSTANT_VECTOR)
-		result.vector_type = VectorType::CONSTANT_VECTOR;
+	if (args.data[0].buffer->vector_type == VectorType::CONSTANT_VECTOR &&
+	    args.data[1].buffer->vector_type == VectorType::CONSTANT_VECTOR)
+		result.buffer->vector_type = VectorType::CONSTANT_VECTOR;
 	ListVector::SetEntry(result, move(list_child));
 }
 

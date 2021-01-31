@@ -300,7 +300,7 @@ void ReplayState::ReplayDelete() {
 	DataChunk chunk;
 	chunk.Deserialize(source);
 
-	D_ASSERT(chunk.ColumnCount() == 1 && chunk.data[0].type == LOGICAL_ROW_TYPE);
+	D_ASSERT(chunk.ColumnCount() == 1 && chunk.data[0].buffer->type == LOGICAL_ROW_TYPE);
 	row_t row_ids[1];
 	Vector row_identifiers(LOGICAL_ROW_TYPE, (data_ptr_t)row_ids);
 

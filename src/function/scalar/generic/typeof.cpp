@@ -3,7 +3,7 @@
 namespace duckdb {
 
 static void typeof_function(DataChunk &args, ExpressionState &state, Vector &result) {
-	Value v(args.data[0].type.ToString());
+	Value v(args.data[0].buffer->type.ToString());
 	result.Reference(v);
 }
 

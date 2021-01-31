@@ -218,7 +218,7 @@ static void filterSelectionType(T *vec, T *predicate, SelectionVector &sel, idx_
 void UncompressedSegment::filterSelection(SelectionVector &sel, Vector &result, TableFilter filter,
                                           idx_t &approved_tuple_count, nullmask_t &nullmask) {
 	// the inplace loops take the result as the last parameter
-	switch (result.type.InternalType()) {
+	switch (result.buffer->type.InternalType()) {
 	case PhysicalType::INT8: {
 		auto result_flat = FlatVector::GetData<int8_t>(result);
 		auto predicate_vector = Vector(filter.constant.value_.tinyint);
@@ -275,7 +275,7 @@ void UncompressedSegment::filterSelection(SelectionVector &sel, Vector &result, 
 		break;
 	}
 	default:
-		throw InvalidTypeException(result.type, "Invalid type for filter pushed down to table comparison");
+		throw InvalidTypeException(result.buffer->type, "Invalid type for filter pushed down to table comparison");
 	}
 }
 

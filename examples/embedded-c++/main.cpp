@@ -184,6 +184,15 @@ int main(int argc, char** argv) {
                             FROM tbl)";
                 con.Query(query);
 			}
+			else if(arg == "8"){
+                auto result = con.Query("Create Table test(a Integer)");
+				result->Print();
+				result = con.Query("INSERT INTO test VALUES (11)");
+				result->Print();
+				result = con.Query("SELECT * from test");
+				result->Print();
+
+			}
 		}
 	}
 }

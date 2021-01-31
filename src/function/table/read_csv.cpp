@@ -171,7 +171,7 @@ static void read_csv_function(ClientContext &context, const FunctionData *bind_d
 	if (bind_data.include_file_name) {
 		auto &col = output.data.back();
 		col.SetValue(0, Value(data.csv_reader->options.file_path));
-		col.vector_type = VectorType::CONSTANT_VECTOR;
+		col.buffer->vector_type = VectorType::CONSTANT_VECTOR;
 	}
 }
 

@@ -71,7 +71,7 @@ template <class T> void Appender::AppendValueInternal(T input) {
 		InvalidateException("Too many appends for chunk!");
 	}
 	auto &col = chunk.data[column];
-	switch (col.type.InternalType()) {
+	switch (col.buffer->type.InternalType()) {
 	case PhysicalType::BOOL:
 		AppendValueInternal<T, bool>(col, input);
 		break;

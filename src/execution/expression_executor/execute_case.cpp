@@ -53,7 +53,7 @@ void ExpressionExecutor::Execute(BoundCaseExpression &expr, ExpressionState *sta
 template <class T> void fill_loop(Vector &vector, Vector &result, SelectionVector &sel, sel_t count) {
 	auto res = FlatVector::GetData<T>(result);
 	auto &result_nullmask = FlatVector::Nullmask(result);
-	if (vector.vector_type == VectorType::CONSTANT_VECTOR) {
+	if (vector.buffer->vector_type == VectorType::CONSTANT_VECTOR) {
 		auto data = ConstantVector::GetData<T>(vector);
 		if (ConstantVector::IsNull(vector)) {
 			for (idx_t i = 0; i < count; i++) {
@@ -87,9 +87,9 @@ void case_loop(Vector &res_true, Vector &res_false, Vector &result, SelectionVec
 
 void Case(Vector &res_true, Vector &res_false, Vector &result, SelectionVector &tside, idx_t tcount,
           SelectionVector &fside, idx_t fcount) {
-	D_ASSERT(res_true.type == res_false.type && res_true.type == result.type);
+	D_ASSERT(res_true.buffer->type == res_false.buffer->type && res_true.buffer->type == result.buffer->type);
 
-	switch (result.type.InternalType()) {
+	switch (result.buffer->type.InternalType()) {
 	case PhysicalType::BOOL:
 	case PhysicalType::INT8:
 		case_loop<int8_t>(res_true, res_false, result, tside, tcount, fside, fcount);
@@ -160,7 +160,7 @@ void Case(Vector &res_true, Vector &res_false, Vector &result, SelectionVector &
 		break;
 	}
 	default:
-		throw NotImplementedException("Unimplemented type for case expression: %s", result.type.ToString());
+		throw NotImplementedException("Unimplemented type for case expression: %s", result.buffer->type.ToString());
 	}
 }
 

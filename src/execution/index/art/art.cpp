@@ -113,7 +113,7 @@ static void concatenate_keys(Vector &input, idx_t count, vector<unique_ptr<Key>>
 void ART::GenerateKeys(DataChunk &input, vector<unique_ptr<Key>> &keys) {
 	keys.reserve(STANDARD_VECTOR_SIZE);
 	// generate keys for the first input column
-	switch (input.data[0].type.InternalType()) {
+	switch (input.data[0].buffer->type.InternalType()) {
 	case PhysicalType::BOOL:
 		generate_keys<bool>(input.data[0], input.size(), keys, is_little_endian);
 		break;
@@ -139,11 +139,11 @@ void ART::GenerateKeys(DataChunk &input, vector<unique_ptr<Key>> &keys) {
 		generate_keys<string_t>(input.data[0], input.size(), keys, is_little_endian);
 		break;
 	default:
-		throw InvalidTypeException(input.data[0].type, "Invalid type for index");
+		throw InvalidTypeException(input.data[0].buffer->type, "Invalid type for index");
 	}
 	for (idx_t i = 1; i < input.ColumnCount(); i++) {
 		// for each of the remaining columns, concatenate
-		switch (input.data[i].type.InternalType()) {
+		switch (input.data[i].buffer->type.InternalType()) {
 		case PhysicalType::BOOL:
 			concatenate_keys<bool>(input.data[i], input.size(), keys, is_little_endian);
 			break;
@@ -169,14 +169,14 @@ void ART::GenerateKeys(DataChunk &input, vector<unique_ptr<Key>> &keys) {
 			concatenate_keys<string_t>(input.data[i], input.size(), keys, is_little_endian);
 			break;
 		default:
-			throw InvalidTypeException(input.data[0].type, "Invalid type for index");
+			throw InvalidTypeException(input.data[0].buffer->type, "Invalid type for index");
 		}
 	}
 }
 
 bool ART::Insert(IndexLock &lock, DataChunk &input, Vector &row_ids) {
-	D_ASSERT(row_ids.type.InternalType() == ROW_TYPE);
-	D_ASSERT(logical_types[0] == input.data[0].type);
+	D_ASSERT(row_ids.buffer->type.InternalType() == ROW_TYPE);
+	D_ASSERT(logical_types[0] == input.data[0].buffer->type);
 
 	// generate the keys for the given input
 	vector<unique_ptr<Key>> keys;

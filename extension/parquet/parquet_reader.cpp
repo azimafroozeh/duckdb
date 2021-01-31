@@ -1089,7 +1089,7 @@ void ParquetReader::ScanColumn(ParquetReaderScanState &state, parquet_filter_t &
 
 template <class T, class OP>
 void templated_filter_operation2(Vector &v, T constant, parquet_filter_t &filter_mask, idx_t count) {
-	D_ASSERT(v.vector_type == VectorType::FLAT_VECTOR); // we just created the damn thing it better be
+	D_ASSERT(v.buffer->vector_type == VectorType::FLAT_VECTOR); // we just created the damn thing it better be
 
 	auto v_ptr = FlatVector::GetData<T>(v);
 	auto &nullmask = FlatVector::Nullmask(v);
@@ -1110,7 +1110,7 @@ static void templated_filter_operation(Vector &v, Value &constant, parquet_filte
 	if (filter_mask.none() || count == 0) {
 		return;
 	}
-	switch (v.type.id()) {
+	switch (v.buffer->type.id()) {
 	case LogicalTypeId::BOOLEAN:
 		templated_filter_operation2<bool, OP>(v, constant.value_.boolean, filter_mask, count);
 		break;

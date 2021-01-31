@@ -18,10 +18,10 @@ static void least_greatest_impl(DataChunk &args, ExpressionState &state, Vector 
 	}
 	auto result_type = VectorType::CONSTANT_VECTOR;
 	for (idx_t col_idx = 0; col_idx < args.ColumnCount(); col_idx++) {
-		if (args.data[col_idx].vector_type == VectorType::CONSTANT_VECTOR) {
+		if (args.data[col_idx].buffer->vector_type == VectorType::CONSTANT_VECTOR) {
 			if (ConstantVector::IsNull(args.data[col_idx])) {
 				// constant NULL: result is constant NULL
-				result.vector_type = VectorType::CONSTANT_VECTOR;
+				result.buffer->vector_type = VectorType::CONSTANT_VECTOR;
 				ConstantVector::SetNull(result, true);
 				return;
 			}
@@ -89,7 +89,7 @@ static void least_greatest_impl(DataChunk &args, ExpressionState &state, Vector 
 			}
 		}
 	}
-	result.vector_type = result_type;
+	result.buffer->vector_type = result_type;
 }
 
 template <class OP> static void register_least_greatest(BuiltinFunctions &set, string fun_name) {

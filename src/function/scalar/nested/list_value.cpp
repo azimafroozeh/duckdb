@@ -12,7 +12,7 @@ static void list_value_fun(DataChunk &args, ExpressionState &state, Vector &resu
 	//	auto &func_expr = (BoundFunctionExpression &)state.expr;
 	//	auto &info = (VariableReturnBindData &)*func_expr.bind_info;
 
-	D_ASSERT(result.type.id() == LogicalTypeId::LIST);
+	D_ASSERT(result.buffer->type.id() == LogicalTypeId::LIST);
 	auto list_child = make_unique<ChunkCollection>();
 	ListVector::SetEntry(result, move(list_child));
 
@@ -24,10 +24,10 @@ static void list_value_fun(DataChunk &args, ExpressionState &state, Vector &resu
 		append_vals.Initialize(types);
 		append_vals.SetCardinality(1);
 	}
-	result.vector_type = VectorType::CONSTANT_VECTOR;
+	result.buffer->vector_type = VectorType::CONSTANT_VECTOR;
 	for (idx_t i = 0; i < args.ColumnCount(); i++) {
-		if (args.data[i].vector_type != VectorType::CONSTANT_VECTOR) {
-			result.vector_type = VectorType::FLAT_VECTOR;
+		if (args.data[i].buffer->vector_type != VectorType::CONSTANT_VECTOR) {
+			result.buffer->vector_type = VectorType::FLAT_VECTOR;
 		}
 	}
 

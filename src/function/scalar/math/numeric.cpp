@@ -386,7 +386,7 @@ static void decimal_round_negative_precision_function(DataChunk &input, Expressi
 	auto source_scale = func_expr.children[0]->return_type.scale();
 	if (-info.target_scale >= func_expr.children[0]->return_type.width()) {
 		// scale too big for width
-		result.vector_type = VectorType::CONSTANT_VECTOR;
+		result.buffer->vector_type = VectorType::CONSTANT_VECTOR;
 		result.SetValue(0, Value::INTEGER(0));
 		return;
 	}

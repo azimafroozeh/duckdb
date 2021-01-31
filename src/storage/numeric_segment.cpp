@@ -56,7 +56,7 @@ NumericSegment::NumericSegment(BufferManager &manager, PhysicalType type, idx_t 
 template <class T, class OP>
 void Select(SelectionVector &sel, Vector &result, unsigned char *source, nullmask_t *source_nullmask, T constant,
             idx_t &approved_tuple_count) {
-	result.vector_type = VectorType::FLAT_VECTOR;
+	result.buffer->vector_type = VectorType::FLAT_VECTOR;
 	auto result_data = FlatVector::GetData(result);
 	SelectionVector new_sel(approved_tuple_count);
 	idx_t result_count = 0;
@@ -84,7 +84,7 @@ void Select(SelectionVector &sel, Vector &result, unsigned char *source, nullmas
 template <class T, class OPL, class OPR>
 void Select(SelectionVector &sel, Vector &result, unsigned char *source, nullmask_t *source_nullmask,
             const T constantLeft, const T constantRight, idx_t &approved_tuple_count) {
-	result.vector_type = VectorType::FLAT_VECTOR;
+	result.buffer->vector_type = VectorType::FLAT_VECTOR;
 	auto result_data = FlatVector::GetData(result);
 	SelectionVector new_sel(approved_tuple_count);
 	idx_t result_count = 0;
@@ -294,7 +294,7 @@ void NumericSegment::FetchBaseData(ColumnScanState &state, idx_t vector_index, V
 	auto source_data = data + offset + sizeof(nullmask_t);
 
 	// fetch the nullmask and copy the data from the base table
-	result.vector_type = VectorType::FLAT_VECTOR;
+	result.buffer->vector_type = VectorType::FLAT_VECTOR;
 	FlatVector::SetNullmask(result, *source_nullmask);
 	memcpy(FlatVector::GetData(result), source_data, count * type_size);
 }
@@ -335,7 +335,7 @@ void NumericSegment::FilterFetchBaseData(ColumnScanState &state, Vector &result,
 	auto source_nullmask = (nullmask_t *)(data + offset);
 	auto source_data = data + offset + sizeof(nullmask_t);
 	// fetch the nullmask and copy the data from the base table
-	result.vector_type = VectorType::FLAT_VECTOR;
+	result.buffer->vector_type = VectorType::FLAT_VECTOR;
 	auto result_data = FlatVector::GetData(result);
 	nullmask_t result_nullmask;
 	// the inplace loops take the result as the last parameter
@@ -419,7 +419,7 @@ void NumericSegment::FetchRow(ColumnFetchState &state, Transaction &transaction,
 // Append
 //===--------------------------------------------------------------------===//
 idx_t NumericSegment::Append(SegmentStatistics &stats, Vector &data, idx_t offset, idx_t count) {
-	D_ASSERT(data.type.InternalType() == type);
+	D_ASSERT(data.buffer->type.InternalType() == type);
 	auto handle = manager.Pin(block);
 
 	idx_t initial_count = tuple_count;
