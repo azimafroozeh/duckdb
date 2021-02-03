@@ -92,7 +92,9 @@ void Vector::Slice(const SelectionVector &sel, idx_t count) {
 		// already a dictionary, slice the current dictionary
 		auto &current_sel = DictionaryVector::SelVector(*this);
 		auto sliced_dictionary = current_sel.Slice(sel, count);
+        auto tmp = buffer->type;
 		buffer = make_buffer<DictionaryBuffer>(move(sliced_dictionary));
+        buffer->type = tmp;
 		return;
 	}
 	auto child_ref = make_buffer<VectorChildBuffer>();
