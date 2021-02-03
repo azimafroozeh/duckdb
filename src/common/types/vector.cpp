@@ -99,9 +99,11 @@ void Vector::Slice(const SelectionVector &sel, idx_t count) {
 	child_ref->data.Reference(*this);
 
 	auto dict_buffer = make_buffer<DictionaryBuffer>(sel);
+	auto tmp = buffer->type;
 	buffer = move(dict_buffer);
 	auxiliary = move(child_ref);
 	buffer->vector_type = VectorType::DICTIONARY_VECTOR;
+	buffer->type = tmp;
 }
 
 void Vector::Slice(const SelectionVector &sel, idx_t count, SelCache &cache) {
@@ -465,9 +467,9 @@ void Vector::Normalify(idx_t count) {
 		break;
 	}
 	case VectorType::CONSTANT_VECTOR: {
-		auto old_buffer = move(buffer);
+        auto old_buffer = move(buffer);
 		auto old_data = data;
-        buffer = VectorBuffer::CreateStandardVector(VectorType::FLAT_VECTOR, buffer->type, old_buffer->type.InternalType());
+        buffer = VectorBuffer::CreateStandardVector(VectorType::FLAT_VECTOR, old_buffer->type, old_buffer->type.InternalType());
 		data = buffer->GetData();
 		if (nullmask[0]) {
 			// constant NULL, set nullmask

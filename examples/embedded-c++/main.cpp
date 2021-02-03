@@ -185,12 +185,21 @@ int main(int argc, char** argv) {
                 con.Query(query);
 			}
 			else if(arg == "8"){
-                auto result = con.Query("Create Table test(a Integer)");
-				result->Print();
-				result = con.Query("INSERT INTO test VALUES (11)");
-				result->Print();
-				result = con.Query("SELECT * from test");
-				result->Print();
+                DuckDB db(nullptr);
+                Connection con(db);
+                unique_ptr<QueryResult> result;
+
+                // write a bunch of values to a CSV
+                auto csv_file = ("relationtest.csv");
+
+                con.Values("(1), (2), (3)", {"i"})->WriteCSV(csv_file);
+
+                // now scan the CSV file
+                auto csv_scan = con.ReadCSV(csv_file, {"i INTEGER"});
+                result = csv_scan->Execute();
+                REQUIRE(CHECK_COLUMN(result, 0, {1, 2, 3}));
+
+                REQUIRE_THROWS(con.ReadCSV(csv_file, {"i INTEGER); SELECT 42;--"}));
 
 			}
 		}
