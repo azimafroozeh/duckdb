@@ -117,7 +117,11 @@ void Vector::Slice(const SelectionVector &sel, idx_t count, SelCache &cache) {
 		auto entry = cache.cache.find(target_data);
 		if (entry != cache.cache.end()) {
 			// cached entry exists: use that
+			auto tmp = buffer->type;
+			auto tmp1 = buffer->vector_type;
 			this->buffer = entry->second;
+			buffer->type = tmp;
+			buffer->vector_type = tmp1;
 		} else {
 			Slice(sel, count);
 			cache.cache[target_data] = this->buffer;
