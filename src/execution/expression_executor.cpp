@@ -65,6 +65,7 @@ void ExpressionExecutor::ExecuteExpression(Vector &result) {
 }
 
 void ExpressionExecutor::ExecuteExpression(idx_t expr_idx, Vector &result) {
+	D_ASSERT(result.buffer != nullptr);
 	D_ASSERT(expr_idx < expressions.size());
 	D_ASSERT(result.buffer->type == expressions[expr_idx]->return_type);
 	Execute(*expressions[expr_idx], states[expr_idx]->root_state.get(), nullptr, chunk ? chunk->size() : 1, result);
