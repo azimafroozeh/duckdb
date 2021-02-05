@@ -93,8 +93,10 @@ void Vector::Slice(const SelectionVector &sel, idx_t count) {
 		auto &current_sel = DictionaryVector::SelVector(*this);
 		auto sliced_dictionary = current_sel.Slice(sel, count);
         auto tmp = buffer->type;
+		auto tmp1 = buffer->vector_type;
 		buffer = make_buffer<DictionaryBuffer>(move(sliced_dictionary));
         buffer->type = tmp;
+		buffer->vector_type = tmp1;
 		return;
 	}
 	auto child_ref = make_buffer<VectorChildBuffer>();
@@ -133,6 +135,7 @@ void Vector::Slice(const SelectionVector &sel, idx_t count, SelCache &cache) {
 
 void Vector::Initialize(LogicalType new_type, bool zero_data) {
 	LogicalType tmp = buffer->type;
+	auto tmp1 = buffer->vector_type;
     if (new_type.id() != LogicalTypeId::INVALID) {
 		tmp = new_type;
 	}
@@ -145,6 +148,9 @@ void Vector::Initialize(LogicalType new_type, bool zero_data) {
 		if (zero_data) {
 			memset(data, 0, STANDARD_VECTOR_SIZE * GetTypeIdSize(new_type.InternalType()));
 		}
+	}
+	else {
+        buffer = VectorBuffer::CreateStandardVector(tmp1, tmp, tmp.InternalType());
 	}
 }
 
