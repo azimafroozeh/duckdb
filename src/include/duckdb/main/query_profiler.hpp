@@ -42,6 +42,7 @@ public:
 
 	DUCKDB_API void StartOperator(PhysicalOperator *phys_op);
 	DUCKDB_API void EndOperator(DataChunk *chunk);
+    DUCKDB_API void Flush(vector<unique_ptr<ExpressionExecutorState>> &vector);
 
 private:
 	void AddTiming(PhysicalOperator *op, double time, idx_t elements);

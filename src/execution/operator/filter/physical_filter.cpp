@@ -6,8 +6,8 @@ namespace duckdb {
 
 class PhysicalFilterState : public PhysicalOperatorState {
 public:
-	PhysicalFilterState(QueryProfiler *query_profiler, PhysicalOperator &op, PhysicalOperator *child, Expression &expr)
-	    : PhysicalOperatorState(op, child), executor(query_profiler,expr) {
+	PhysicalFilterState(ExecutionContext &execution_context, PhysicalOperator &op, PhysicalOperator *child, Expression &expr)
+	    : PhysicalOperatorState(execution_context, op, child), executor(&execution_context.thread,expr) {
 	}
 
 	ExpressionExecutor executor;
@@ -51,8 +51,8 @@ void PhysicalFilter::GetChunkInternal(ExecutionContext &context, DataChunk &chun
 	chunk.Slice(sel, result_count);
 }
 
-unique_ptr<PhysicalOperatorState> PhysicalFilter::GetOperatorState(QueryProfiler *query_profiler) {
-	return make_unique<PhysicalFilterState>(query_profiler, *this, children[0].get(), *expression);
+unique_ptr<PhysicalOperatorState> PhysicalFilter::GetOperatorState(ExecutionContext &execution_context) {
+	return make_unique<PhysicalFilterState>(execution_context, *this, children[0].get(), *expression);
 }
 
 string PhysicalFilter::ParamsToString() const {

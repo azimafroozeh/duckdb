@@ -16,8 +16,8 @@ namespace duckdb {
 
 class PhysicalIndexJoinOperatorState : public PhysicalOperatorState {
 public:
-	PhysicalIndexJoinOperatorState(QueryProfiler *query_profiler, PhysicalOperator &op, PhysicalOperator *left, PhysicalOperator *right)
-	    : PhysicalOperatorState(op, left) , probe_executor(query_profiler){
+	PhysicalIndexJoinOperatorState(ExecutionContext &execution_context, PhysicalOperator &op, PhysicalOperator *left, PhysicalOperator *right)
+	    : PhysicalOperatorState(execution_context, op, left) , probe_executor(&execution_context.thread){
 		D_ASSERT(left && right);
 		for (idx_t i = 0; i < STANDARD_VECTOR_SIZE; i++) {
 			rhs_rows.emplace_back();
@@ -179,8 +179,8 @@ void PhysicalIndexJoin::GetChunkInternal(ExecutionContext &context, DataChunk &c
 	}
 }
 
-unique_ptr<PhysicalOperatorState> PhysicalIndexJoin::GetOperatorState(QueryProfiler *query_profiler) {
-	auto state = make_unique<PhysicalIndexJoinOperatorState>(query_profiler,*this, children[0].get(), children[1].get());
+unique_ptr<PhysicalOperatorState> PhysicalIndexJoin::GetOperatorState(ExecutionContext &execution_context) {
+	auto state = make_unique<PhysicalIndexJoinOperatorState>(execution_context, *this, children[0].get(), children[1].get());
 	if (right_projection_map.empty()) {
 		for (column_t i = 0; i < column_ids.size(); i++) {
 			right_projection_map.push_back(i);

@@ -7,8 +7,8 @@ void PhysicalExecute::GetChunkInternal(ExecutionContext &context, DataChunk &chu
 	plan->GetChunk(context, chunk, state_p);
 }
 
-unique_ptr<PhysicalOperatorState> PhysicalExecute::GetOperatorState(QueryProfiler *query_profiler) {
-	return plan->GetOperatorState(query_profiler);
+unique_ptr<PhysicalOperatorState> PhysicalExecute::GetOperatorState(ExecutionContext &execution_context) {
+	return plan->GetOperatorState(execution_context);
 }
 
 } // namespace duckdb

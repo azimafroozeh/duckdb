@@ -139,11 +139,11 @@ void PhysicalHashJoin::Sink(ExecutionContext &context, GlobalOperatorState &stat
 //===--------------------------------------------------------------------===//
 // Finalize
 //===--------------------------------------------------------------------===//
-void PhysicalHashJoin::Finalize(Pipeline &pipeline, ClientContext &context, unique_ptr<GlobalOperatorState> state) {
+void PhysicalHashJoin::Finalize(Pipeline &pipeline, ExecutionContext &execution_context, unique_ptr<GlobalOperatorState> state) {
 	auto &sink = (HashJoinGlobalState &)*state;
 	sink.hash_table->Finalize();
 
-	PhysicalSink::Finalize(pipeline, context, move(state));
+	PhysicalSink::Finalize(pipeline, execution_context, move(state));
 }
 
 //===--------------------------------------------------------------------===//
@@ -151,9 +151,9 @@ void PhysicalHashJoin::Finalize(Pipeline &pipeline, ClientContext &context, uniq
 //===--------------------------------------------------------------------===//
 class PhysicalHashJoinState : public PhysicalOperatorState {
 public:
-	PhysicalHashJoinState(QueryProfiler *query_profiler, PhysicalOperator &op, PhysicalOperator *left, PhysicalOperator *right,
+	PhysicalHashJoinState(ExecutionContext &execution_context, PhysicalOperator &op, PhysicalOperator *left, PhysicalOperator *right,
 	                      vector<JoinCondition> &conditions)
-	    : PhysicalOperatorState(op, left) , probe_executor(query_profiler) {
+	    : PhysicalOperatorState(execution_context, op, left) , probe_executor(&execution_context.thread) {
 	}
 
 	DataChunk cached_chunk;
@@ -162,8 +162,8 @@ public:
 	unique_ptr<JoinHashTable::ScanStructure> scan_structure;
 };
 
-unique_ptr<PhysicalOperatorState> PhysicalHashJoin::GetOperatorState(QueryProfiler *query_profiler) {
-	auto state = make_unique<PhysicalHashJoinState>(query_profiler, *this, children[0].get(), children[1].get(), conditions);
+unique_ptr<PhysicalOperatorState> PhysicalHashJoin::GetOperatorState(ExecutionContext &execution_context) {
+	auto state = make_unique<PhysicalHashJoinState>(execution_context, *this, children[0].get(), children[1].get(), conditions);
 	state->cached_chunk.Initialize(types);
 	state->join_keys.Initialize(condition_types);
 	for (auto &cond : conditions) {

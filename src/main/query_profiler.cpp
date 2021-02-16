@@ -212,6 +212,8 @@ void OperatorProfiler::AddTiming(PhysicalOperator *op, double time, idx_t elemen
 		entry->second.elements += elements;
 	}
 }
+void OperatorProfiler::Flush(vector<unique_ptr<ExpressionExecutorState>> &vector) {
+}
 
 void QueryProfiler::Flush(OperatorProfiler &profiler) {
 	if (!enabled || !running) {

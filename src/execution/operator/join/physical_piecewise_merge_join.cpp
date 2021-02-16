@@ -94,7 +94,7 @@ void PhysicalPiecewiseMergeJoin::Sink(ExecutionContext &context, GlobalOperatorS
 //===--------------------------------------------------------------------===//
 static void OrderVector(Vector &vector, idx_t count, MergeOrder &order);
 
-void PhysicalPiecewiseMergeJoin::Finalize(Pipeline &pipeline, ClientContext &context,
+void PhysicalPiecewiseMergeJoin::Finalize(Pipeline &pipeline, ExecutionContext &execution_context,
                                           unique_ptr<GlobalOperatorState> state) {
 	auto &gstate = (MergeJoinGlobalState &)*state;
 	if (gstate.right_conditions.ChunkCount() > 0) {
@@ -119,7 +119,7 @@ void PhysicalPiecewiseMergeJoin::Finalize(Pipeline &pipeline, ClientContext &con
 		gstate.right_found_match = unique_ptr<bool[]>(new bool[gstate.right_chunks.Count()]);
 		memset(gstate.right_found_match.get(), 0, sizeof(bool) * gstate.right_chunks.Count());
 	}
-	PhysicalSink::Finalize(pipeline, context, move(state));
+	PhysicalSink::Finalize(pipeline, execution_context, move(state));
 }
 
 //===--------------------------------------------------------------------===//
@@ -127,9 +127,9 @@ void PhysicalPiecewiseMergeJoin::Finalize(Pipeline &pipeline, ClientContext &con
 //===--------------------------------------------------------------------===//
 class PhysicalPiecewiseMergeJoinState : public PhysicalOperatorState {
 public:
-	PhysicalPiecewiseMergeJoinState(QueryProfiler *query_profiler, PhysicalOperator &op, PhysicalOperator *left, vector<JoinCondition> &conditions)
-	    : PhysicalOperatorState(op, left), fetch_next_left(true), left_position(0), right_position(0),
-	      right_chunk_index(0) , lhs_executor(query_profiler) {
+	PhysicalPiecewiseMergeJoinState(ExecutionContext &execution_context, PhysicalOperator &op, PhysicalOperator *left, vector<JoinCondition> &conditions)
+	    : PhysicalOperatorState(execution_context, op, left), fetch_next_left(true), left_position(0), right_position(0),
+	      right_chunk_index(0) , lhs_executor(&execution_context.thread) {
 		vector<LogicalType> condition_types;
 		for (auto &cond : conditions) {
 			lhs_executor.AddExpression(*cond.left);
@@ -314,8 +314,8 @@ void PhysicalPiecewiseMergeJoin::GetChunkInternal(ExecutionContext &context, Dat
 	}
 }
 
-unique_ptr<PhysicalOperatorState> PhysicalPiecewiseMergeJoin::GetOperatorState(QueryProfiler *query_profiler) {
-	return make_unique<PhysicalPiecewiseMergeJoinState>(query_profiler, *this, children[0].get(), conditions);
+unique_ptr<PhysicalOperatorState> PhysicalPiecewiseMergeJoin::GetOperatorState(ExecutionContext& execution_context) {
+	return make_unique<PhysicalPiecewiseMergeJoinState>(execution_context, *this, children[0].get(), conditions);
 }
 
 //===--------------------------------------------------------------------===//

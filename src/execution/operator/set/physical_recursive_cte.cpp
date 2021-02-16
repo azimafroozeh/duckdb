@@ -12,7 +12,7 @@ namespace duckdb {
 
 class PhysicalRecursiveCTEState : public PhysicalOperatorState {
 public:
-	explicit PhysicalRecursiveCTEState(PhysicalOperator &op) : PhysicalOperatorState(op, nullptr), top_done(false) {
+	explicit PhysicalRecursiveCTEState(ExecutionContext &execution_context, PhysicalOperator &op) : PhysicalOperatorState(execution_context, op, nullptr), top_done(false) {
 	}
 	unique_ptr<PhysicalOperatorState> top_state;
 	unique_ptr<PhysicalOperatorState> bottom_state;
@@ -79,7 +79,7 @@ void PhysicalRecursiveCTE::GetChunkInternal(ExecutionContext &context, DataChunk
 			intermediate_table.Reset();
 
 			ExecuteRecursivePipelines(context);
-			state->bottom_state = children[1]->GetOperatorState(nullptr);
+			state->bottom_state = children[1]->GetOperatorState(context);
 
 			state->intermediate_empty = true;
 			continue;
@@ -152,10 +152,10 @@ idx_t PhysicalRecursiveCTE::ProbeHT(DataChunk &chunk, PhysicalOperatorState *sta
 	return new_group_count;
 }
 
-unique_ptr<PhysicalOperatorState> PhysicalRecursiveCTE::GetOperatorState(QueryProfiler *query_profiler) {
-	auto state = make_unique<PhysicalRecursiveCTEState>(*this);
-	state->top_state = children[0]->GetOperatorState(nullptr);
-	state->bottom_state = children[1]->GetOperatorState(nullptr);
+unique_ptr<PhysicalOperatorState> PhysicalRecursiveCTE::GetOperatorState(ExecutionContext &execution_context) {
+	auto state = make_unique<PhysicalRecursiveCTEState>(execution_context, *this);
+	state->top_state = children[0]->GetOperatorState(execution_context);
+	state->bottom_state = children[1]->GetOperatorState(execution_context);
 	return (move(state));
 }
 

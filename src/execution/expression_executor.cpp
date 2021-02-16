@@ -10,38 +10,38 @@ namespace duckdb {
 ExpressionExecutor::ExpressionExecutor() {
 }
 
-ExpressionExecutor::ExpressionExecutor(QueryProfiler *query_profiler) : query_profiler(query_profiler) {
+ExpressionExecutor::ExpressionExecutor(ThreadContext *thread_context) : thread_context(thread_context) {
 
 }
 
-ExpressionExecutor::ExpressionExecutor(Expression *expression) : query_profiler(nullptr) {
+ExpressionExecutor::ExpressionExecutor(Expression *expression) : thread_context(nullptr) {
 	D_ASSERT(expression);
 	AddExpression(*expression);
 }
 
-ExpressionExecutor::ExpressionExecutor(QueryProfiler *query_profiler, Expression *expression) : query_profiler(query_profiler) {
+ExpressionExecutor::ExpressionExecutor(ThreadContext *thread_context, Expression *expression) : thread_context(thread_context) {
     D_ASSERT(expression);
     AddExpression(*expression);
 }
 
 
-ExpressionExecutor::ExpressionExecutor(Expression &expression) :  query_profiler(nullptr) {
+ExpressionExecutor::ExpressionExecutor(Expression &expression) :  thread_context(nullptr) {
 
 }
 
-ExpressionExecutor::ExpressionExecutor(QueryProfiler *query_profiler, Expression &expression) : query_profiler(query_profiler) {
+ExpressionExecutor::ExpressionExecutor(ThreadContext *thread_context, Expression &expression) : thread_context(thread_context) {
     AddExpression(expression);
 }
 
 
-ExpressionExecutor::ExpressionExecutor(vector<unique_ptr<Expression>> &expressions) :  query_profiler(nullptr) {
+ExpressionExecutor::ExpressionExecutor(vector<unique_ptr<Expression>> &expressions) :  thread_context(nullptr) {
 	D_ASSERT(expressions.size() > 0);
 	for (auto &expr : expressions) {
 		AddExpression(*expr);
 	}
 }
 
-ExpressionExecutor::ExpressionExecutor(QueryProfiler *query_profiler, vector<unique_ptr<Expression>> &expressions) : query_profiler(query_profiler){
+ExpressionExecutor::ExpressionExecutor(ThreadContext *thread_context, vector<unique_ptr<Expression>> &expressions) : thread_context(thread_context){
     D_ASSERT(expressions.size() > 0);
     for (auto &expr : expressions) {
         AddExpression(*expr);
@@ -268,8 +268,8 @@ idx_t ExpressionExecutor::DefaultSelect(Expression &expr, ExpressionState *state
 	}
 }
 ExpressionExecutor::~ExpressionExecutor() {
-	if (query_profiler){
-        query_profiler->Flush(states);
+	if (thread_context){
+        thread_context->profiler.Flush(states);
 	}
 }
 
