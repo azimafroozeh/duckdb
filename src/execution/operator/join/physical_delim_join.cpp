@@ -76,7 +76,7 @@ void PhysicalDelimJoin::Finalize(Pipeline &pipeline, ClientContext &client, uniq
 	// materialize the distinct collection
 	DataChunk delim_chunk;
 	distinct->InitializeChunk(delim_chunk);
-	auto distinct_state = distinct->GetOperatorState();
+	auto distinct_state = distinct->GetOperatorState(nullptr);
 	ThreadContext thread(client);
 	TaskContext task;
 	ExecutionContext context(client, thread, task);
@@ -99,13 +99,13 @@ void PhysicalDelimJoin::GetChunkInternal(ExecutionContext &context, DataChunk &c
 	auto state = reinterpret_cast<PhysicalDelimJoinState *>(state_p);
 	if (!state->join_state) {
 		// create the state of the underlying join
-		state->join_state = join->GetOperatorState();
+		state->join_state = join->GetOperatorState(nullptr);
 	}
 	// now pull from the RHS from the underlying join
 	join->GetChunk(context, chunk, state->join_state.get());
 }
 
-unique_ptr<PhysicalOperatorState> PhysicalDelimJoin::GetOperatorState() {
+unique_ptr<PhysicalOperatorState> PhysicalDelimJoin::GetOperatorState(QueryProfiler *query_profiler) {
 	return make_unique<PhysicalDelimJoinState>(*this, children[0].get());
 }
 

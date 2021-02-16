@@ -449,5 +449,7 @@ vector<QueryProfiler::PhaseTimingItem> QueryProfiler::GetOrderedPhaseTimings() c
 	}
 	return result;
 }
+void QueryProfiler::Flush(vector<unique_ptr<ExpressionExecutorState>> &states) {
+}
 
 } // namespace duckdb

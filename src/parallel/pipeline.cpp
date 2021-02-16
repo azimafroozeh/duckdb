@@ -46,7 +46,7 @@ void Pipeline::Execute(TaskContext &task) {
 	ThreadContext thread(client);
 	ExecutionContext context(client, thread, task);
 	try {
-		auto state = child->GetOperatorState();
+		auto state = child->GetOperatorState(&context.client.profiler);
 		auto lstate = sink->GetLocalSinkState(context);
 		// incrementally process the pipeline
 		DataChunk intermediate;

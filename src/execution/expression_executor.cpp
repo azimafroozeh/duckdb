@@ -2,26 +2,50 @@
 
 #include "duckdb/common/vector_operations/vector_operations.hpp"
 #include "duckdb/storage/statistics/base_statistics.hpp"
+#include "duckdb/common/cycleclock.h"
+#include "duckdb/execution/expression_executor_state.hpp"
 
 namespace duckdb {
 
 ExpressionExecutor::ExpressionExecutor() {
 }
 
-ExpressionExecutor::ExpressionExecutor(Expression *expression) {
+ExpressionExecutor::ExpressionExecutor(QueryProfiler *query_profiler) : query_profiler(query_profiler) {
+
+}
+
+ExpressionExecutor::ExpressionExecutor(Expression *expression) : query_profiler(nullptr) {
 	D_ASSERT(expression);
 	AddExpression(*expression);
 }
 
-ExpressionExecutor::ExpressionExecutor(Expression &expression) {
-	AddExpression(expression);
+ExpressionExecutor::ExpressionExecutor(QueryProfiler *query_profiler, Expression *expression) : query_profiler(query_profiler) {
+    D_ASSERT(expression);
+    AddExpression(*expression);
 }
 
-ExpressionExecutor::ExpressionExecutor(vector<unique_ptr<Expression>> &exprs) {
-	D_ASSERT(exprs.size() > 0);
-	for (auto &expr : exprs) {
+
+ExpressionExecutor::ExpressionExecutor(Expression &expression) :  query_profiler(nullptr) {
+
+}
+
+ExpressionExecutor::ExpressionExecutor(QueryProfiler *query_profiler, Expression &expression) : query_profiler(query_profiler) {
+    AddExpression(expression);
+}
+
+
+ExpressionExecutor::ExpressionExecutor(vector<unique_ptr<Expression>> &expressions) :  query_profiler(nullptr) {
+	D_ASSERT(expressions.size() > 0);
+	for (auto &expr : expressions) {
 		AddExpression(*expr);
 	}
+}
+
+ExpressionExecutor::ExpressionExecutor(QueryProfiler *query_profiler, vector<unique_ptr<Expression>> &expressions) : query_profiler(query_profiler){
+    D_ASSERT(expressions.size() > 0);
+    for (auto &expr : expressions) {
+        AddExpression(*expr);
+    }
 }
 
 void ExpressionExecutor::AddExpression(Expression &expr) {
@@ -121,6 +145,7 @@ unique_ptr<ExpressionState> ExpressionExecutor::InitializeState(Expression &expr
 
 void ExpressionExecutor::Execute(Expression &expr, ExpressionState *state, const SelectionVector *sel, idx_t count,
                                  Vector &result) {
+	int64_t start = Now();
 	if (count == 0) {
 		return;
 	}
@@ -159,6 +184,7 @@ void ExpressionExecutor::Execute(Expression &expr, ExpressionState *state, const
 		throw NotImplementedException("Attempting to execute expression of unknown type!");
 	}
 	Verify(expr, result, count);
+    state->cycles = Now() - start;
 }
 
 idx_t ExpressionExecutor::Select(Expression &expr, ExpressionState *state, const SelectionVector *sel, idx_t count,
@@ -241,5 +267,11 @@ idx_t ExpressionExecutor::DefaultSelect(Expression &expr, ExpressionState *state
 		return DefaultSelectSwitch<true>(idata, sel, count, true_sel, false_sel);
 	}
 }
+ExpressionExecutor::~ExpressionExecutor() {
+	if (query_profiler){
+        query_profiler->Flush(states);
+	}
+}
+
 
 } // namespace duckdb

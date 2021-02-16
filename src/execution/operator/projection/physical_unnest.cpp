@@ -145,7 +145,7 @@ void PhysicalUnnest::GetChunkInternal(ExecutionContext &context, DataChunk &chun
 	}
 }
 
-unique_ptr<PhysicalOperatorState> PhysicalUnnest::GetOperatorState() {
+unique_ptr<PhysicalOperatorState> PhysicalUnnest::GetOperatorState(QueryProfiler *query_profiler) {
 	return make_unique<PhysicalUnnestOperatorState>(*this, children[0].get());
 }
 

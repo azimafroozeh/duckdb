@@ -70,10 +70,10 @@ void PhysicalBlockwiseNLJoin::Finalize(Pipeline &pipeline, ClientContext &contex
 //===--------------------------------------------------------------------===//
 class PhysicalBlockwiseNLJoinState : public PhysicalOperatorState {
 public:
-	PhysicalBlockwiseNLJoinState(PhysicalOperator &op, PhysicalOperator *left, JoinType join_type,
+	PhysicalBlockwiseNLJoinState(QueryProfiler *query_profiler, PhysicalOperator &op, PhysicalOperator *left, JoinType join_type,
 	                             Expression &condition)
 	    : PhysicalOperatorState(op, left), left_position(0), right_position(0), fill_in_rhs(false),
-	      checked_found_match(false), executor(condition) {
+	      checked_found_match(false), executor(query_profiler, condition) {
 		if (IsLeftOuterJoin(join_type)) {
 			lhs_found_match = unique_ptr<bool[]>(new bool[STANDARD_VECTOR_SIZE]);
 		}
@@ -212,8 +212,8 @@ void PhysicalBlockwiseNLJoin::GetChunkInternal(ExecutionContext &context, DataCh
 	} while (result_count == 0);
 }
 
-unique_ptr<PhysicalOperatorState> PhysicalBlockwiseNLJoin::GetOperatorState() {
-	return make_unique<PhysicalBlockwiseNLJoinState>(*this, children[0].get(), join_type, *condition);
+unique_ptr<PhysicalOperatorState> PhysicalBlockwiseNLJoin::GetOperatorState(QueryProfiler *query_profiler) {
+	return make_unique<PhysicalBlockwiseNLJoinState>(query_profiler, *this, children[0].get(), join_type, *condition);
 }
 
 string PhysicalBlockwiseNLJoin::ParamsToString() const {

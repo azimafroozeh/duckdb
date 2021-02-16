@@ -35,10 +35,10 @@ void PhysicalUnion::GetChunkInternal(ExecutionContext &context, DataChunk &chunk
 	}
 }
 
-unique_ptr<PhysicalOperatorState> PhysicalUnion::GetOperatorState() {
+unique_ptr<PhysicalOperatorState> PhysicalUnion::GetOperatorState(QueryProfiler *query_profiler) {
 	auto state = make_unique<PhysicalUnionOperatorState>(*this);
-	state->top_state = children[0]->GetOperatorState();
-	state->bottom_state = children[1]->GetOperatorState();
+	state->top_state = children[0]->GetOperatorState(nullptr);
+	state->bottom_state = children[1]->GetOperatorState(nullptr);
 	return (move(state));
 }
 

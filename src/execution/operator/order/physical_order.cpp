@@ -96,7 +96,7 @@ void PhysicalOrder::GetChunkInternal(ExecutionContext &context, DataChunk &chunk
 	state->position += STANDARD_VECTOR_SIZE;
 }
 
-unique_ptr<PhysicalOperatorState> PhysicalOrder::GetOperatorState() {
+unique_ptr<PhysicalOperatorState> PhysicalOrder::GetOperatorState(QueryProfiler *query_profiler) {
 	return make_unique<PhysicalOrderOperatorState>(*this, children[0].get());
 }
 

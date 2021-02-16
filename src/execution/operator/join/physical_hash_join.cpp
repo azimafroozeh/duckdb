@@ -151,9 +151,9 @@ void PhysicalHashJoin::Finalize(Pipeline &pipeline, ClientContext &context, uniq
 //===--------------------------------------------------------------------===//
 class PhysicalHashJoinState : public PhysicalOperatorState {
 public:
-	PhysicalHashJoinState(PhysicalOperator &op, PhysicalOperator *left, PhysicalOperator *right,
+	PhysicalHashJoinState(QueryProfiler *query_profiler, PhysicalOperator &op, PhysicalOperator *left, PhysicalOperator *right,
 	                      vector<JoinCondition> &conditions)
-	    : PhysicalOperatorState(op, left) {
+	    : PhysicalOperatorState(op, left) , probe_executor(query_profiler) {
 	}
 
 	DataChunk cached_chunk;
@@ -162,8 +162,8 @@ public:
 	unique_ptr<JoinHashTable::ScanStructure> scan_structure;
 };
 
-unique_ptr<PhysicalOperatorState> PhysicalHashJoin::GetOperatorState() {
-	auto state = make_unique<PhysicalHashJoinState>(*this, children[0].get(), children[1].get(), conditions);
+unique_ptr<PhysicalOperatorState> PhysicalHashJoin::GetOperatorState(QueryProfiler *query_profiler) {
+	auto state = make_unique<PhysicalHashJoinState>(query_profiler, *this, children[0].get(), children[1].get(), conditions);
 	state->cached_chunk.Initialize(types);
 	state->join_keys.Initialize(condition_types);
 	for (auto &cond : conditions) {

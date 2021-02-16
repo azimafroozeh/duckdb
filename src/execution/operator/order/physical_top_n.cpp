@@ -139,7 +139,7 @@ void PhysicalTopN::GetChunkInternal(ExecutionContext &context, DataChunk &chunk,
 	state.position = gstate.big_data.MaterializeHeapChunk(chunk, gstate.heap.get(), state.position, gstate.heap_size);
 }
 
-unique_ptr<PhysicalOperatorState> PhysicalTopN::GetOperatorState() {
+unique_ptr<PhysicalOperatorState> PhysicalTopN::GetOperatorState(QueryProfiler *query_profiler) {
 	return make_unique<PhysicalTopNOperatorState>(*this, children[0].get());
 }
 

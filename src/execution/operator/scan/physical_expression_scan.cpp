@@ -39,7 +39,7 @@ void PhysicalExpressionScan::GetChunkInternal(ExecutionContext &context, DataChu
 	state->expression_index++;
 }
 
-unique_ptr<PhysicalOperatorState> PhysicalExpressionScan::GetOperatorState() {
+unique_ptr<PhysicalOperatorState> PhysicalExpressionScan::GetOperatorState(QueryProfiler *query_profiler) {
 	return make_unique<PhysicalExpressionScanState>(*this, children[0].get());
 }
 

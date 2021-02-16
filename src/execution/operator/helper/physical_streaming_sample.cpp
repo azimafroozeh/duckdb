@@ -72,7 +72,7 @@ void PhysicalStreamingSample::GetChunkInternal(ExecutionContext &context, DataCh
 	} while (chunk.size() == 0);
 }
 
-unique_ptr<PhysicalOperatorState> PhysicalStreamingSample::GetOperatorState() {
+unique_ptr<PhysicalOperatorState> PhysicalStreamingSample::GetOperatorState(QueryProfiler *query_profiler) {
 	return make_unique<StreamingSampleOperatorState>(*this, children[0].get(), seed);
 }
 

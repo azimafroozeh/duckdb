@@ -25,7 +25,7 @@ void Executor::Initialize(PhysicalOperator *plan) {
 	Reset();
 
 	physical_plan = plan;
-	physical_state = physical_plan->GetOperatorState();
+	physical_state = physical_plan->GetOperatorState(&context.profiler);
 
 	context.profiler.Initialize(physical_plan);
 	auto &scheduler = TaskScheduler::GetScheduler(context);

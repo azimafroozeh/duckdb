@@ -173,7 +173,7 @@ void PhysicalPerfectHashAggregate::GetChunkInternal(ExecutionContext &context, D
 	gstate.ht->Scan(state.ht_scan_position, chunk);
 }
 
-unique_ptr<PhysicalOperatorState> PhysicalPerfectHashAggregate::GetOperatorState() {
+unique_ptr<PhysicalOperatorState> PhysicalPerfectHashAggregate::GetOperatorState(QueryProfiler *query_profiler) {
 	return make_unique<PerfectHashAggregateState>(*this, children[0].get());
 }
 

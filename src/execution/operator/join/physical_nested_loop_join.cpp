@@ -186,9 +186,9 @@ unique_ptr<LocalSinkState> PhysicalNestedLoopJoin::GetLocalSinkState(ExecutionCo
 //===--------------------------------------------------------------------===//
 class PhysicalNestedLoopJoinState : public PhysicalOperatorState {
 public:
-	PhysicalNestedLoopJoinState(PhysicalOperator &op, PhysicalOperator *left, vector<JoinCondition> &conditions)
+	PhysicalNestedLoopJoinState(QueryProfiler *query_profiler, PhysicalOperator &op, PhysicalOperator *left, vector<JoinCondition> &conditions)
 	    : PhysicalOperatorState(op, left), fetch_next_left(true), fetch_next_right(false), right_chunk(0),
-	      left_tuple(0), right_tuple(0) {
+	      left_tuple(0), right_tuple(0) , lhs_executor(query_profiler) {
 		vector<LogicalType> condition_types;
 		for (auto &cond : conditions) {
 			lhs_executor.AddExpression(*cond.left);
@@ -388,8 +388,8 @@ void PhysicalNestedLoopJoin::GetChunkInternal(ExecutionContext &context, DataChu
 	}
 }
 
-unique_ptr<PhysicalOperatorState> PhysicalNestedLoopJoin::GetOperatorState() {
-	return make_unique<PhysicalNestedLoopJoinState>(*this, children[0].get(), conditions);
+unique_ptr<PhysicalOperatorState> PhysicalNestedLoopJoin::GetOperatorState(QueryProfiler *query_profiler) {
+	return make_unique<PhysicalNestedLoopJoinState>(query_profiler, *this, children[0].get(), conditions);
 }
 
 } // namespace duckdb

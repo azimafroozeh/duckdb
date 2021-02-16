@@ -124,7 +124,7 @@ string PhysicalTableScan::ParamsToString() const {
 	return result;
 }
 
-unique_ptr<PhysicalOperatorState> PhysicalTableScan::GetOperatorState() {
+unique_ptr<PhysicalOperatorState> PhysicalTableScan::GetOperatorState(QueryProfiler *query_profiler) {
 	return make_unique<PhysicalTableScanOperatorState>(*this);
 }
 

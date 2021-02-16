@@ -37,7 +37,7 @@ public:
 	string ParamsToString() const override;
 
 	void GetChunkInternal(ExecutionContext &context, DataChunk &chunk, PhysicalOperatorState *state) override;
-	unique_ptr<PhysicalOperatorState> GetOperatorState() override;
+	unique_ptr<PhysicalOperatorState> GetOperatorState(QueryProfiler *query_profiler) override;
 };
 
 } // namespace duckdb

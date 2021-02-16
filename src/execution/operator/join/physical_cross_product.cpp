@@ -47,7 +47,7 @@ public:
 	idx_t right_position;
 };
 
-unique_ptr<PhysicalOperatorState> PhysicalCrossProduct::GetOperatorState() {
+unique_ptr<PhysicalOperatorState> PhysicalCrossProduct::GetOperatorState(QueryProfiler *query_profiler) {
 	return make_unique<PhysicalCrossProductOperatorState>(*this, children[0].get(), children[1].get());
 }
 

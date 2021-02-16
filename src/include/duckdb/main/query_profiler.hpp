@@ -16,6 +16,7 @@
 #include "duckdb/common/unordered_map.hpp"
 #include "duckdb/common/winapi.hpp"
 #include "duckdb/execution/physical_operator.hpp"
+#include "duckdb/execution/expression_executor_state.hpp"
 
 #include <stack>
 #include <unordered_map>
@@ -92,6 +93,8 @@ public:
 
 	//! Adds the timings gathered by an OperatorProfiler to this query profiler
 	DUCKDB_API void Flush(OperatorProfiler &profiler);
+
+	DUCKDB_API void Flush(vector<unique_ptr<ExpressionExecutorState>> &states);
 
 	DUCKDB_API void StartPhase(string phase);
 	DUCKDB_API void EndPhase();

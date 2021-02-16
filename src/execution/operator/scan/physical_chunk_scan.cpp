@@ -26,7 +26,7 @@ void PhysicalChunkScan::GetChunkInternal(ExecutionContext &context, DataChunk &c
 	state->chunk_index++;
 }
 
-unique_ptr<PhysicalOperatorState> PhysicalChunkScan::GetOperatorState() {
+unique_ptr<PhysicalOperatorState> PhysicalChunkScan::GetOperatorState(QueryProfiler *query_profiler) {
 	return make_unique<PhysicalChunkScanState>(*this);
 }
 

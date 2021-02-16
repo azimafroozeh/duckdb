@@ -90,7 +90,7 @@ void PhysicalLimit::GetChunkInternal(ExecutionContext &context, DataChunk &chunk
 	} while (chunk.size() == 0);
 }
 
-unique_ptr<PhysicalOperatorState> PhysicalLimit::GetOperatorState() {
+unique_ptr<PhysicalOperatorState> PhysicalLimit::GetOperatorState(QueryProfiler *query_profiler) {
 	return make_unique<PhysicalLimitOperatorState>(*this, children[0].get(), 0);
 }
 

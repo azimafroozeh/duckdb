@@ -519,7 +519,7 @@ void PhysicalWindow::GetChunkInternal(ExecutionContext &context, DataChunk &chun
 	state->position += STANDARD_VECTOR_SIZE;
 }
 
-unique_ptr<PhysicalOperatorState> PhysicalWindow::GetOperatorState() {
+unique_ptr<PhysicalOperatorState> PhysicalWindow::GetOperatorState(QueryProfiler *query_profiler) {
 	return make_unique<PhysicalWindowOperatorState>(*this, children[0].get());
 }
 

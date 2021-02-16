@@ -12,6 +12,7 @@
 #include "duckdb/execution/expression_executor_state.hpp"
 #include "duckdb/planner/bound_tokens.hpp"
 #include "duckdb/planner/expression.hpp"
+#include "duckdb/main/query_profiler.hpp"
 
 namespace duckdb {
 
@@ -22,6 +23,10 @@ public:
 	explicit ExpressionExecutor(Expression *expression);
 	explicit ExpressionExecutor(Expression &expression);
 	explicit ExpressionExecutor(vector<unique_ptr<Expression>> &expressions);
+    explicit ExpressionExecutor(QueryProfiler *query_profiler);
+    explicit ExpressionExecutor(QueryProfiler *query_profiler, Expression *expression);
+    explicit ExpressionExecutor(QueryProfiler *query_profiler, Expression &expression);
+    explicit ExpressionExecutor(QueryProfiler *query_profiler, vector<unique_ptr<Expression>> &expressions);
 
 	//! Add an expression to the set of to-be-executed expressions of the executor
 	void AddExpression(Expression &expr);
@@ -59,12 +64,15 @@ public:
 	void SetChunk(DataChunk &chunk) {
 		SetChunk(&chunk);
 	}
+	virtual ~ExpressionExecutor();
 
 	//! The expressions of the executor
 	vector<Expression *> expressions;
 	//! The data chunk of the current physical operator, used to resolve
 	//! column references and determines the output cardinality
 	DataChunk *chunk = nullptr;
+
+	QueryProfiler *query_profiler;
 
 protected:
 	void Initialize(Expression &expr, ExpressionExecutorState &state);

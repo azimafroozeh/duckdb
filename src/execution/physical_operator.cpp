@@ -22,7 +22,7 @@ PhysicalOperatorState::PhysicalOperatorState(PhysicalOperator &op, PhysicalOpera
 	op.InitializeChunk(initial_chunk);
 	if (child) {
 		child->InitializeChunkEmpty(child_chunk);
-		child_state = child->GetOperatorState();
+		child_state = child->GetOperatorState(nullptr);
 	}
 }
 

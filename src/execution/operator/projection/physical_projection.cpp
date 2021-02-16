@@ -6,8 +6,8 @@ namespace duckdb {
 
 class PhysicalProjectionState : public PhysicalOperatorState {
 public:
-	PhysicalProjectionState(PhysicalOperator &op, PhysicalOperator *child, vector<unique_ptr<Expression>> &expressions)
-	    : PhysicalOperatorState(op, child), executor(expressions) {
+	PhysicalProjectionState(QueryProfiler *query_profiler, PhysicalOperator &op, PhysicalOperator *child, vector<unique_ptr<Expression>> &expressions)
+	    : PhysicalOperatorState(op, child), executor(query_profiler, expressions) {
 		D_ASSERT(child);
 	}
 
@@ -26,8 +26,8 @@ void PhysicalProjection::GetChunkInternal(ExecutionContext &context, DataChunk &
 	state->executor.Execute(state->child_chunk, chunk);
 }
 
-unique_ptr<PhysicalOperatorState> PhysicalProjection::GetOperatorState() {
-	return make_unique<PhysicalProjectionState>(*this, children[0].get(), select_list);
+unique_ptr<PhysicalOperatorState> PhysicalProjection::GetOperatorState(QueryProfiler *query_profiler) {
+	return make_unique<PhysicalProjectionState>(query_profiler, *this, children[0].get(), select_list);
 }
 
 string PhysicalProjection::ParamsToString() const {

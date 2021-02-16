@@ -79,7 +79,7 @@ void PhysicalRecursiveCTE::GetChunkInternal(ExecutionContext &context, DataChunk
 			intermediate_table.Reset();
 
 			ExecuteRecursivePipelines(context);
-			state->bottom_state = children[1]->GetOperatorState();
+			state->bottom_state = children[1]->GetOperatorState(nullptr);
 
 			state->intermediate_empty = true;
 			continue;
@@ -152,10 +152,10 @@ idx_t PhysicalRecursiveCTE::ProbeHT(DataChunk &chunk, PhysicalOperatorState *sta
 	return new_group_count;
 }
 
-unique_ptr<PhysicalOperatorState> PhysicalRecursiveCTE::GetOperatorState() {
+unique_ptr<PhysicalOperatorState> PhysicalRecursiveCTE::GetOperatorState(QueryProfiler *query_profiler) {
 	auto state = make_unique<PhysicalRecursiveCTEState>(*this);
-	state->top_state = children[0]->GetOperatorState();
-	state->bottom_state = children[1]->GetOperatorState();
+	state->top_state = children[0]->GetOperatorState(nullptr);
+	state->bottom_state = children[1]->GetOperatorState(nullptr);
 	return (move(state));
 }
 

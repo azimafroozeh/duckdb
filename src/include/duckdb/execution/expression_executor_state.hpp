@@ -27,6 +27,7 @@ struct ExpressionState {
 	vector<unique_ptr<ExpressionState>> child_states;
 	vector<LogicalType> types;
 	DataChunk intermediate_chunk;
+	idx_t cycles;
 
 public:
 	void AddChild(Expression *expr);
