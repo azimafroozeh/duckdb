@@ -24,8 +24,11 @@ Executor::~Executor() {
 void Executor::Initialize(PhysicalOperator *plan) {
 	Reset();
 
+    ThreadContext thread(context);
+    TaskContext task;
+    ExecutionContext execution_context(context, thread, task);
 	physical_plan = plan;
-	physical_state = physical_plan->GetOperatorState();
+	physical_state = physical_plan->GetOperatorState(execution_context);
 
 	context.profiler.Initialize(physical_plan);
 	auto &scheduler = TaskScheduler::GetScheduler(context);

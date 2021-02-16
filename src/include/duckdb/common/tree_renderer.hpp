@@ -72,6 +72,7 @@ struct TreeRendererConfig {
 	// static constexpr const char* HORIZONTAL = "-";
 };
 
+
 class TreeRenderer {
 public:
 	explicit TreeRenderer(TreeRendererConfig config_p = TreeRendererConfig()) : config(move(config_p)) {
@@ -118,6 +119,7 @@ private:
 
 	template <class T>
 	unique_ptr<RenderTree> CreateRenderTree(const T &op);
+	string ExtractExpressionsRecursive(ExpressionState &states);
 };
 
 } // namespace duckdb

@@ -8,9 +8,8 @@
 #include "duckdb/execution/operator/helper/physical_execute.hpp"
 #include "duckdb/common/tree_renderer.hpp"
 #include "duckdb/parser/sql_statement.hpp"
-#include "duckdb/common/printer.hpp"
 #include "duckdb/common/limits.hpp"
-#include "duckdb/common/to_string.hpp"
+#include "iostream"
 
 #include <utility>
 #include <algorithm>
@@ -212,6 +211,15 @@ void OperatorProfiler::AddTiming(PhysicalOperator *op, double time, idx_t elemen
 		entry->second.elements += elements;
 	}
 }
+void OperatorProfiler::Flush(ExpressionExecutor* expression_executor) {
+	if(timings.size() < 255){
+		auto& operator_timing = timings.find(expression_executor->physical_operator)->second;
+        operator_timing.executors_info = make_unique<ExpressionExecutionInformation>(*expression_executor);
+        operator_timing.executors_info->states = move(expression_executor->states);
+		operator_timing.has_executor = true;
+	}
+}
+
 
 void QueryProfiler::Flush(OperatorProfiler &profiler) {
 	if (!enabled || !running) {
@@ -224,6 +232,8 @@ void QueryProfiler::Flush(OperatorProfiler &profiler) {
 
 		entry->second->info.time += node.second.time;
 		entry->second->info.elements += node.second.elements;
+		entry->second->info.executors_info = move(node.second.executors_info);
+		entry->second->info.has_executor = node.second.has_executor;
 	}
 }
 
@@ -450,4 +460,8 @@ vector<QueryProfiler::PhaseTimingItem> QueryProfiler::GetOrderedPhaseTimings() c
 	return result;
 }
 
+ExpressionExecutionInformation::ExpressionExecutionInformation(
+    ExpressionExecutor &executor) : total_count(executor.total_count) , current_count(executor.current_count), sample_count(executor.sample_count) ,
+      sample_tuples_count(executor.sample_tuples_count) , tuples_count(executor.tuples_count) {
+}
 } // namespace duckdb

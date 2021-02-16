@@ -2,26 +2,51 @@
 
 #include "duckdb/common/vector_operations/vector_operations.hpp"
 #include "duckdb/storage/statistics/base_statistics.hpp"
+#include "duckdb/common/cycleclock.h"
+#include "duckdb/execution/expression_executor_state.hpp"
 
 namespace duckdb {
 
 ExpressionExecutor::ExpressionExecutor() {
 }
 
-ExpressionExecutor::ExpressionExecutor(Expression *expression) {
+
+ExpressionExecutor::ExpressionExecutor(PhysicalOperator *physical_operator, ThreadContext *thread_context) : thread_context(thread_context) , physical_operator(physical_operator)  {
+
+}
+
+ExpressionExecutor::ExpressionExecutor(Expression *expression) : thread_context(nullptr) {
 	D_ASSERT(expression);
 	AddExpression(*expression);
 }
 
-ExpressionExecutor::ExpressionExecutor(Expression &expression) {
-	AddExpression(expression);
+ExpressionExecutor::ExpressionExecutor(PhysicalOperator *physical_operator, ThreadContext *thread_context, Expression *expression) : thread_context(thread_context) , physical_operator(physical_operator) {
+    D_ASSERT(expression);
+    AddExpression(*expression);
 }
 
-ExpressionExecutor::ExpressionExecutor(vector<unique_ptr<Expression>> &exprs) {
-	D_ASSERT(exprs.size() > 0);
-	for (auto &expr : exprs) {
+
+ExpressionExecutor::ExpressionExecutor(Expression &expression) :  thread_context(nullptr) {
+    AddExpression(expression);
+}
+
+ExpressionExecutor::ExpressionExecutor(PhysicalOperator *physical_operator, ThreadContext *thread_context, Expression &expression) : thread_context(thread_context) , physical_operator(physical_operator) {
+    AddExpression(expression);
+}
+
+
+ExpressionExecutor::ExpressionExecutor(vector<unique_ptr<Expression>> &expressions) :  thread_context(nullptr) {
+	D_ASSERT(!expressions.empty());
+	for (auto &expr : expressions) {
 		AddExpression(*expr);
 	}
+}
+
+ExpressionExecutor::ExpressionExecutor(PhysicalOperator *physical_operator, ThreadContext *thread_context, vector<unique_ptr<Expression>> &expressions) : thread_context(thread_context) , physical_operator(physical_operator) {
+    D_ASSERT(!expressions.empty());
+    for (auto &expr : expressions) {
+        AddExpression(*expr);
+    }
 }
 
 void ExpressionExecutor::AddExpression(Expression &expr) {
@@ -43,9 +68,19 @@ void ExpressionExecutor::Execute(DataChunk *input, DataChunk &result) {
 	D_ASSERT(!expressions.empty());
 	for (idx_t i = 0; i < expressions.size(); i++) {
 		ExecuteExpression(i, result.data[i]);
+        if (current_count >= next_sample) {
+            next_sample = 50 + rand() % 100;
+            ++sample_count;
+			sample_tuples_count += input->size();
+            current_count = 0;
+        } else {
+			++current_count;
+		}
 	}
 	result.SetCardinality(input ? input->size() : 1);
 	result.Verify();
+	++total_count;
+	tuples_count += input->size();
 }
 
 void ExpressionExecutor::ExecuteExpression(DataChunk &input, Vector &result) {
@@ -121,9 +156,9 @@ unique_ptr<ExpressionState> ExpressionExecutor::InitializeState(Expression &expr
 
 void ExpressionExecutor::Execute(Expression &expr, ExpressionState *state, const SelectionVector *sel, idx_t count,
                                  Vector &result) {
-	if (count == 0) {
-		return;
-	}
+    if (current_count >= next_sample) {
+        state->profiler.Start();
+    }
 	switch (expr.expression_class) {
 	case ExpressionClass::BOUND_BETWEEN:
 		Execute((BoundBetweenExpression &)expr, state, sel, count, result);
@@ -159,6 +194,10 @@ void ExpressionExecutor::Execute(Expression &expr, ExpressionState *state, const
 		throw NotImplementedException("Attempting to execute expression of unknown type!");
 	}
 	Verify(expr, result, count);
+    if (current_count >= next_sample) {
+		state->profiler.End();
+		state->time += state->profiler.Elapsed();
+    }
 }
 
 idx_t ExpressionExecutor::Select(Expression &expr, ExpressionState *state, const SelectionVector *sel, idx_t count,
@@ -241,5 +280,11 @@ idx_t ExpressionExecutor::DefaultSelect(Expression &expr, ExpressionState *state
 		return DefaultSelectSwitch<true>(idata, sel, count, true_sel, false_sel);
 	}
 }
+ExpressionExecutor::~ExpressionExecutor() {
+	if (thread_context){
+        thread_context->profiler.Flush(this);
+	}
+}
+
 
 } // namespace duckdb

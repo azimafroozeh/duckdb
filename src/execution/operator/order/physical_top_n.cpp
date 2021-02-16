@@ -106,12 +106,12 @@ void PhysicalTopN::Combine(ExecutionContext &context, GlobalOperatorState &state
 //===--------------------------------------------------------------------===//
 // Finalize
 //===--------------------------------------------------------------------===//
-void PhysicalTopN::Finalize(Pipeline &pipeline, ClientContext &context, unique_ptr<GlobalOperatorState> state) {
+void PhysicalTopN::Finalize(Pipeline &pipeline, ExecutionContext &execution_context, unique_ptr<GlobalOperatorState> state) {
 	auto &gstate = (TopNGlobalState &)*state;
 	// global finalize: compute the final top N
 	gstate.heap = ComputeTopN(gstate.big_data, gstate.heap_size);
 
-	PhysicalSink::Finalize(pipeline, context, move(state));
+	PhysicalSink::Finalize(pipeline, execution_context, move(state));
 }
 
 //===--------------------------------------------------------------------===//
@@ -119,8 +119,8 @@ void PhysicalTopN::Finalize(Pipeline &pipeline, ClientContext &context, unique_p
 //===--------------------------------------------------------------------===//
 class PhysicalTopNOperatorState : public PhysicalOperatorState {
 public:
-	PhysicalTopNOperatorState(PhysicalOperator &op, PhysicalOperator *child)
-	    : PhysicalOperatorState(op, child), position(0) {
+	PhysicalTopNOperatorState(ExecutionContext &execution_context, PhysicalOperator &op, PhysicalOperator *child)
+	    : PhysicalOperatorState(execution_context, op, child), position(0) {
 	}
 
 	idx_t position;
@@ -139,8 +139,8 @@ void PhysicalTopN::GetChunkInternal(ExecutionContext &context, DataChunk &chunk,
 	state.position = gstate.big_data.MaterializeHeapChunk(chunk, gstate.heap.get(), state.position, gstate.heap_size);
 }
 
-unique_ptr<PhysicalOperatorState> PhysicalTopN::GetOperatorState() {
-	return make_unique<PhysicalTopNOperatorState>(*this, children[0].get());
+unique_ptr<PhysicalOperatorState> PhysicalTopN::GetOperatorState(ExecutionContext &execution_context) {
+	return make_unique<PhysicalTopNOperatorState>(execution_context, *this, children[0].get());
 }
 
 string PhysicalTopN::ParamsToString() const {

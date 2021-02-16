@@ -94,9 +94,10 @@ unique_ptr<DataChunk> ClientContext::Fetch() {
 }
 
 string ClientContext::FinalizeQuery(ClientContextLock &lock, bool success) {
-	profiler.EndQuery();
 
-	executor.Reset();
+    executor.Reset();
+
+	profiler.EndQuery();
 
 	string error;
 	if (transaction.HasActiveTransaction()) {

@@ -12,6 +12,8 @@
 #include "duckdb/execution/expression_executor_state.hpp"
 #include "duckdb/planner/bound_tokens.hpp"
 #include "duckdb/planner/expression.hpp"
+#include "duckdb/main/query_profiler.hpp"
+#include "duckdb/parallel/thread_context.hpp"
 
 namespace duckdb {
 
@@ -22,6 +24,10 @@ public:
 	explicit ExpressionExecutor(Expression *expression);
 	explicit ExpressionExecutor(Expression &expression);
 	explicit ExpressionExecutor(vector<unique_ptr<Expression>> &expressions);
+    explicit ExpressionExecutor(PhysicalOperator *physical_operator, ThreadContext *thread_context);
+    explicit ExpressionExecutor(PhysicalOperator *physical_operator, ThreadContext *thread_context, Expression *expression);
+    explicit ExpressionExecutor(PhysicalOperator *physical_operator, ThreadContext *thread_context, Expression &expression);
+    explicit ExpressionExecutor(PhysicalOperator *physical_operator, ThreadContext *thread_context, vector<unique_ptr<Expression>> &expressions);
 
 	//! Add an expression to the set of to-be-executed expressions of the executor
 	void AddExpression(Expression &expr);
@@ -59,12 +65,36 @@ public:
 	void SetChunk(DataChunk &chunk) {
 		SetChunk(&chunk);
 	}
+	virtual ~ExpressionExecutor();
 
 	//! The expressions of the executor
 	vector<Expression *> expressions;
 	//! The data chunk of the current physical operator, used to resolve
 	//! column references and determines the output cardinality
 	DataChunk *chunk = nullptr;
+
+	ThreadContext *thread_context;
+
+    PhysicalOperator *physical_operator;
+
+	//! Count the number of time the executor called
+	uint32_t total_count = 0;
+
+    //! Count the number of time the executor called since last sampling
+    uint32_t current_count = 0;
+
+    //! Show the next sample
+	uint32_t next_sample = 0;
+
+    //! Count the number of samples
+	uint32_t sample_count = 0;
+
+    //! Count the number of tuples in all samples
+	uint32_t sample_tuples_count = 0;
+
+    //! Count the number of tuples processed by this executor
+    uint32_t tuples_count = 0;
+
 
 protected:
 	void Initialize(Expression &expr, ExpressionExecutorState &state);
@@ -122,7 +152,7 @@ protected:
 	//! Verify that the output of a step in the ExpressionExecutor is correct
 	void Verify(Expression &expr, Vector &result, idx_t count);
 
-private:
+public:
 	//! The states of the expression executor; this holds any intermediates and temporary states of expressions
 	vector<unique_ptr<ExpressionExecutorState>> states;
 };
