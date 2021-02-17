@@ -10,10 +10,13 @@
 
 #include "duckdb/common/common.hpp"
 #include "duckdb/common/types/data_chunk.hpp"
+#include "duckdb/common/chrono.hpp"
+#include "duckdb/common/profiler.hpp"
 
 namespace duckdb {
 class Expression;
 class ExpressionExecutor;
+class Profiler;
 struct ExpressionExecutorState;
 
 struct ExpressionState {
@@ -27,7 +30,8 @@ struct ExpressionState {
 	vector<unique_ptr<ExpressionState>> child_states;
 	vector<LogicalType> types;
 	DataChunk intermediate_chunk;
-	idx_t cycles;
+	double time;
+    Profiler profiler;
 
 public:
 	void AddChild(Expression *expr);

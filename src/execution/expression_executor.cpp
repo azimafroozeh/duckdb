@@ -26,7 +26,7 @@ ExpressionExecutor::ExpressionExecutor(ThreadContext *thread_context, Expression
 
 
 ExpressionExecutor::ExpressionExecutor(Expression &expression) :  thread_context(nullptr) {
-
+    AddExpression(expression);
 }
 
 ExpressionExecutor::ExpressionExecutor(ThreadContext *thread_context, Expression &expression) : thread_context(thread_context) {
@@ -35,14 +35,14 @@ ExpressionExecutor::ExpressionExecutor(ThreadContext *thread_context, Expression
 
 
 ExpressionExecutor::ExpressionExecutor(vector<unique_ptr<Expression>> &expressions) :  thread_context(nullptr) {
-	D_ASSERT(expressions.size() > 0);
+	D_ASSERT(!expressions.empty());
 	for (auto &expr : expressions) {
 		AddExpression(*expr);
 	}
 }
 
 ExpressionExecutor::ExpressionExecutor(ThreadContext *thread_context, vector<unique_ptr<Expression>> &expressions) : thread_context(thread_context){
-    D_ASSERT(expressions.size() > 0);
+    D_ASSERT(!expressions.empty());
     for (auto &expr : expressions) {
         AddExpression(*expr);
     }
@@ -67,9 +67,19 @@ void ExpressionExecutor::Execute(DataChunk *input, DataChunk &result) {
 	D_ASSERT(!expressions.empty());
 	for (idx_t i = 0; i < expressions.size(); i++) {
 		ExecuteExpression(i, result.data[i]);
+        if (current_count >= next_sample) {
+            next_sample = 50 + rand() % 100;
+            ++sample_count;
+			sample_tuples_count += input->size();
+            current_count = 0;
+        } else {
+			++current_count;
+		}
 	}
 	result.SetCardinality(input ? input->size() : 1);
 	result.Verify();
+	++total_count;
+	tuples_count += input->size();
 }
 
 void ExpressionExecutor::ExecuteExpression(DataChunk &input, Vector &result) {
@@ -145,10 +155,9 @@ unique_ptr<ExpressionState> ExpressionExecutor::InitializeState(Expression &expr
 
 void ExpressionExecutor::Execute(Expression &expr, ExpressionState *state, const SelectionVector *sel, idx_t count,
                                  Vector &result) {
-	int64_t start = Now();
-	if (count == 0) {
-		return;
-	}
+    if (current_count >= next_sample) {
+        state->profiler.Start();
+    }
 	switch (expr.expression_class) {
 	case ExpressionClass::BOUND_BETWEEN:
 		Execute((BoundBetweenExpression &)expr, state, sel, count, result);
@@ -184,7 +193,10 @@ void ExpressionExecutor::Execute(Expression &expr, ExpressionState *state, const
 		throw NotImplementedException("Attempting to execute expression of unknown type!");
 	}
 	Verify(expr, result, count);
-    state->cycles = Now() - start;
+    if (current_count >= next_sample) {
+		state->profiler.End();
+		state->time += state->profiler.Elapsed();
+    }
 }
 
 idx_t ExpressionExecutor::Select(Expression &expr, ExpressionState *state, const SelectionVector *sel, idx_t count,

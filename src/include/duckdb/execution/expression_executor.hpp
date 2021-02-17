@@ -75,6 +75,25 @@ public:
 
 	ThreadContext *thread_context;
 
+	//! Count the number of time the executor called
+	uint32_t total_count = 0;
+
+    //! Count the number of time the executor called since last sampling
+    uint32_t current_count = 0;
+
+    //! Show the next sample
+	uint32_t next_sample = 0;
+
+    //! Count the number of samples
+	uint32_t sample_count = 0;
+
+    //! Count the number of tuples in all samples
+	uint32_t sample_tuples_count = 0;
+
+    //! Count the number of tuples processed by this executor
+    uint32_t tuples_count = 0;
+
+
 protected:
 	void Initialize(Expression &expr, ExpressionExecutorState &state);
 
