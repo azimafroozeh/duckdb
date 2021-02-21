@@ -406,7 +406,6 @@ string TreeRenderer::ExtractExpressionsRecursive(ExpressionState &state) {
 	if (state.child_states.empty()) {
 		return result;
 	}
-	idx_t width = 0;
 	// render the children of this node
 	for (auto &child : state.child_states) {
 		result += ExtractExpressionsRecursive(*child);
