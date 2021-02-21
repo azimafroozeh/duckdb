@@ -77,7 +77,7 @@ void PhysicalDelimJoin::Finalize(Pipeline &pipeline, ExecutionContext &execution
 	DataChunk delim_chunk;
 	distinct->InitializeChunk(delim_chunk);
 	auto distinct_state = distinct->GetOperatorState(execution_context);
-	ThreadContext thread(execution_context.client);
+	ThreadContext thread(execution_context.client, 5);
 	TaskContext task;
 	ExecutionContext context(execution_context.client, thread, task);
 	while (true) {

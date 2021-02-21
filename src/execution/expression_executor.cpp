@@ -7,10 +7,6 @@
 
 namespace duckdb {
 
-ExpressionExecutor::ExpressionExecutor() {
-}
-
-
 ExpressionExecutor::ExpressionExecutor(PhysicalOperator *physical_operator, ThreadContext *thread_context) : thread_context(thread_context) , physical_operator(physical_operator)  {
 
 }
@@ -18,6 +14,9 @@ ExpressionExecutor::ExpressionExecutor(PhysicalOperator *physical_operator, Thre
 ExpressionExecutor::ExpressionExecutor(Expression *expression) : thread_context(nullptr) {
 	D_ASSERT(expression);
 	AddExpression(*expression);
+}
+
+ExpressionExecutor::ExpressionExecutor() : thread_context(nullptr) {
 }
 
 ExpressionExecutor::ExpressionExecutor(PhysicalOperator *physical_operator, ThreadContext *thread_context, Expression *expression) : thread_context(thread_context) , physical_operator(physical_operator) {
@@ -281,7 +280,7 @@ idx_t ExpressionExecutor::DefaultSelect(Expression &expr, ExpressionState *state
 	}
 }
 ExpressionExecutor::~ExpressionExecutor() {
-	if (thread_context){
+	if (thread_context && physical_operator){
         thread_context->profiler.Flush(this);
 	}
 }

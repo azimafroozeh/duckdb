@@ -146,7 +146,7 @@ int main(int argc, char** argv) {
             }
             else if(arg == "7") {
                 auto result = con.Query(" CREATE TABLE tbl AS SELECT (i % 2)::TINYINT i FROM range(30000) tbl(i);");
-                con.Query("PRAGMA enable_profiling;");
+                con.Query("PRAGMA enable_detailed_9profiling;");
                 query = R"(SELECT  min(i + i)
                                 FROM tbl)";
                 result = con.Query(query);

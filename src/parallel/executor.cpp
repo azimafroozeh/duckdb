@@ -24,11 +24,11 @@ Executor::~Executor() {
 void Executor::Initialize(PhysicalOperator *plan) {
 	Reset();
 
-    ThreadContext thread(context);
+    thread_context = make_shared<ThreadContext>(context , 1);
     TaskContext task;
-    ExecutionContext execution_context(context, thread, task);
+    ExecutionContext *execution_context = new ExecutionContext(context, *thread_context, task);
 	physical_plan = plan;
-	physical_state = physical_plan->GetOperatorState(execution_context);
+	physical_state = physical_plan->GetOperatorState(*execution_context);
 
 	context.profiler.Initialize(physical_plan);
 	auto &scheduler = TaskScheduler::GetScheduler(context);
@@ -59,6 +59,7 @@ void Executor::Initialize(PhysicalOperator *plan) {
 		// an exception has occurred executing one of the pipelines
 		throw Exception(exceptions[0]);
 	}
+    context.profiler.Flush(thread_context->profiler);
 }
 
 void Executor::Reset() {
@@ -239,15 +240,15 @@ void Executor::Flush(ThreadContext &tcontext) {
 unique_ptr<DataChunk> Executor::FetchChunk() {
 	D_ASSERT(physical_plan);
 
-	ThreadContext thread(context);
+
 	TaskContext task;
-	ExecutionContext econtext(context, thread, task);
+	ExecutionContext econtext(context, *thread_context, task);
 
 	auto chunk = make_unique<DataChunk>();
 	// run the plan to get the next chunks
 	physical_plan->InitializeChunkEmpty(*chunk);
 	physical_plan->GetChunk(econtext, *chunk, physical_state.get());
-	context.profiler.Flush(thread.profiler);
+	context.profiler.Flush(thread_context->profiler);
 	return chunk;
 }
 

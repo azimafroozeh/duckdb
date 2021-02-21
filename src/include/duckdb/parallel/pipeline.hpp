@@ -28,6 +28,7 @@ public:
 
 	Executor &executor;
 	ProducerToken &token;
+	shared_ptr<ThreadContext> thread_context;
 
 public:
 	//! Execute a task within the pipeline on a single thread

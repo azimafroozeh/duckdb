@@ -39,6 +39,8 @@ PhysicalHashJoin::PhysicalHashJoin(LogicalOperator &op, unique_ptr<PhysicalOpera
 class HashJoinLocalState : public LocalSinkState {
 public:
 	DataChunk build_chunk;
+	HashJoinLocalState() : build_executor(nullptr, nullptr) {
+	}
 	DataChunk join_keys;
 	ExpressionExecutor build_executor;
 };

@@ -66,7 +66,7 @@ DataTable::DataTable(ClientContext &context, DataTable &parent, ColumnDefinition
 	// fill the column with its DEFAULT value, or NULL if none is specified
 	idx_t rows_to_write = total_rows;
 	if (rows_to_write > 0) {
-		ExpressionExecutor executor;
+		ExpressionExecutor executor(nullptr, nullptr);
 		DataChunk dummy_chunk;
 		Vector result(new_column_type);
 		if (!default_value) {
@@ -158,7 +158,7 @@ DataTable::DataTable(ClientContext &context, DataTable &parent, idx_t changed_id
 	DataChunk scan_chunk;
 	scan_chunk.Initialize(types);
 
-	ExpressionExecutor executor;
+	ExpressionExecutor executor(nullptr, nullptr);
 	executor.AddExpression(cast_expr);
 
 	Vector append_vector(target_type);

@@ -86,7 +86,7 @@ static void MaterializeExpressions(Expression **exprs, idx_t expr_count, ChunkCo
 	}
 
 	vector<LogicalType> types;
-	ExpressionExecutor executor;
+	ExpressionExecutor executor(nullptr, nullptr);
 	for (idx_t expr_idx = 0; expr_idx < expr_count; ++expr_idx) {
 		types.push_back(exprs[expr_idx]->return_type);
 		executor.AddExpression(*exprs[expr_idx]);
@@ -117,7 +117,7 @@ static void SortCollectionForWindow(BoundWindowExpression *wexpr, ChunkCollectio
 	vector<LogicalType> sort_types;
 	vector<OrderType> orders;
 	vector<OrderByNullType> null_order_types;
-	ExpressionExecutor executor;
+	ExpressionExecutor executor(nullptr, nullptr);
 
 	// we sort by both 1) partition by expression list and 2) order by expressions
 	for (idx_t prt_idx = 0; prt_idx < wexpr->partitions.size(); prt_idx++) {

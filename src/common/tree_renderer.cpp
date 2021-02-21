@@ -421,7 +421,7 @@ unique_ptr<RenderTreeNode> TreeRenderer::CreateNode(const QueryProfiler::TreeNod
 	result->extra_text += "\n" + to_string(op.info.elements);
 	string timing = StringUtil::Format("%.2f", op.info.time);
     result->extra_text += "\n(" + timing + "s)";
-	if(op.info.has_executor) {
+	if(op.info.has_executor && config.detailed) {
         string sample_count = to_string(op.info.executors_info->sample_count);
         result->extra_text += "\n[INFOSEPARATOR]";
         result->extra_text += "\nsample_count: " + sample_count;

@@ -43,7 +43,7 @@ void PhysicalTopN::Sink(ExecutionContext &context, GlobalOperatorState &state, L
 unique_ptr<idx_t[]> PhysicalTopN::ComputeTopN(ChunkCollection &big_data, idx_t &heap_size) {
 	// now perform the actual ordering of the data
 	// compute the sorting columns from the input data
-	ExpressionExecutor executor;
+	ExpressionExecutor executor(nullptr, nullptr);
 	vector<LogicalType> sort_types;
 	vector<OrderType> order_types;
 	vector<OrderByNullType> null_order_types;

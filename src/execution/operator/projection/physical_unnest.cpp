@@ -45,7 +45,7 @@ void PhysicalUnnest::GetChunkInternal(ExecutionContext &context, DataChunk &chun
 			state->list_length = -1;
 
 			// get the list data to unnest
-			ExpressionExecutor executor;
+			ExpressionExecutor executor(nullptr, nullptr);
 			vector<LogicalType> list_data_types;
 			for (auto &exp : select_list) {
 				D_ASSERT(exp->type == ExpressionType::BOUND_UNNEST);

@@ -93,15 +93,19 @@ public:
 private:
 	unique_ptr<TreeNode> CreateTree(PhysicalOperator *root, idx_t depth = 0);
 
-	static void Render(TreeNode &node, std::ostream &str);
+	void Render(const TreeNode &node, std::ostream &str) const;
 
 public:
-	DUCKDB_API QueryProfiler() : automatic_print_format(ProfilerPrintFormat::NONE), enabled(false), running(false) {
+	DUCKDB_API QueryProfiler() : automatic_print_format(ProfilerPrintFormat::NONE), enabled(false), detailed_enabled(false), running(false) {
 	}
 
 	DUCKDB_API void Enable() {
 		enabled = true;
 	}
+
+    DUCKDB_API void DetailedEnable() {
+        detailed_enabled = true;
+    }
 
 	DUCKDB_API void Disable() {
 		enabled = false;
@@ -110,6 +114,10 @@ public:
 	DUCKDB_API bool IsEnabled() {
 		return enabled;
 	}
+
+	bool IsDetailedEnabled() const{
+        return detailed_enabled;
+    }
 
 	DUCKDB_API void StartQuery(string query);
 	DUCKDB_API void EndQuery();
@@ -138,6 +146,8 @@ public:
 private:
 	//! Whether or not query profiling is enabled
 	bool enabled;
+    //! Whether or not detailed query profiling is enabled
+	bool detailed_enabled;
 	//! Whether or not the query profiler is running
 	bool running;
 

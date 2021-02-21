@@ -20,7 +20,7 @@ namespace duckdb {
 //! ExpressionExecutor is responsible for executing a set of expressions and storing the result in a data chunk
 class ExpressionExecutor {
 public:
-	ExpressionExecutor();
+    explicit ExpressionExecutor();
 	explicit ExpressionExecutor(Expression *expression);
 	explicit ExpressionExecutor(Expression &expression);
 	explicit ExpressionExecutor(vector<unique_ptr<Expression>> &expressions);

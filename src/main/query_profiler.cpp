@@ -212,12 +212,13 @@ void OperatorProfiler::AddTiming(PhysicalOperator *op, double time, idx_t elemen
 	}
 }
 void OperatorProfiler::Flush(ExpressionExecutor* expression_executor) {
-	if(timings.size() < 255){
-		auto& operator_timing = timings.find(expression_executor->physical_operator)->second;
-        operator_timing.executors_info = make_unique<ExpressionExecutionInformation>(*expression_executor);
-        operator_timing.executors_info->states = move(expression_executor->states);
-		operator_timing.has_executor = true;
-	}
+		auto entry = timings.find(expression_executor->physical_operator);
+		if (entry != timings.end()) {
+			auto &operator_timing = timings.find(expression_executor->physical_operator)->second;
+			operator_timing.executors_info = make_unique<ExpressionExecutionInformation>(*expression_executor);
+			operator_timing.executors_info->states = move(expression_executor->states);
+			operator_timing.has_executor = true;
+		}
 }
 
 
@@ -435,9 +436,13 @@ unique_ptr<QueryProfiler::TreeNode> QueryProfiler::CreateTree(PhysicalOperator *
 	return node;
 }
 
-void QueryProfiler::Render(QueryProfiler::TreeNode &node, std::ostream &ss) {
+void QueryProfiler::Render(const QueryProfiler::TreeNode &node, std::ostream &ss) const {
 	TreeRenderer renderer;
+    if(IsDetailedEnabled()){
+        renderer.enable_detailed();
+    }
 	renderer.Render(node, ss);
+
 }
 
 void QueryProfiler::Print() {

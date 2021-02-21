@@ -401,7 +401,7 @@ void LocalStorage::AddColumn(DataTable *old_dt, DataTable *new_dt, ColumnDefinit
 
 	// now add the new column filled with the default value to all chunks
 	auto new_column_type = new_column.type;
-	ExpressionExecutor executor;
+	ExpressionExecutor executor(nullptr, nullptr);
 	DataChunk dummy_chunk;
 	if (default_value) {
 		executor.AddExpression(*default_value);
