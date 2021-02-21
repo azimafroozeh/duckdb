@@ -20,14 +20,17 @@ namespace duckdb {
 //! ExpressionExecutor is responsible for executing a set of expressions and storing the result in a data chunk
 class ExpressionExecutor {
 public:
-    explicit ExpressionExecutor();
+	explicit ExpressionExecutor();
 	explicit ExpressionExecutor(Expression *expression);
 	explicit ExpressionExecutor(Expression &expression);
 	explicit ExpressionExecutor(vector<unique_ptr<Expression>> &expressions);
-    explicit ExpressionExecutor(PhysicalOperator *physical_operator, ThreadContext *thread_context);
-    explicit ExpressionExecutor(PhysicalOperator *physical_operator, ThreadContext *thread_context, Expression *expression);
-    explicit ExpressionExecutor(PhysicalOperator *physical_operator, ThreadContext *thread_context, Expression &expression);
-    explicit ExpressionExecutor(PhysicalOperator *physical_operator, ThreadContext *thread_context, vector<unique_ptr<Expression>> &expressions);
+	explicit ExpressionExecutor(PhysicalOperator *physical_operator, ThreadContext *thread_context);
+	explicit ExpressionExecutor(PhysicalOperator *physical_operator, ThreadContext *thread_context,
+	                            Expression *expression);
+	explicit ExpressionExecutor(PhysicalOperator *physical_operator, ThreadContext *thread_context,
+	                            Expression &expression);
+	explicit ExpressionExecutor(PhysicalOperator *physical_operator, ThreadContext *thread_context,
+	                            vector<unique_ptr<Expression>> &expressions);
 
 	//! Add an expression to the set of to-be-executed expressions of the executor
 	void AddExpression(Expression &expr);
@@ -75,26 +78,25 @@ public:
 
 	ThreadContext *thread_context;
 
-    PhysicalOperator *physical_operator;
+	PhysicalOperator *physical_operator;
 
 	//! Count the number of time the executor called
 	uint32_t total_count = 0;
 
-    //! Count the number of time the executor called since last sampling
-    uint32_t current_count = 0;
+	//! Count the number of time the executor called since last sampling
+	uint32_t current_count = 0;
 
-    //! Show the next sample
+	//! Show the next sample
 	uint32_t next_sample = 0;
 
-    //! Count the number of samples
+	//! Count the number of samples
 	uint32_t sample_count = 0;
 
-    //! Count the number of tuples in all samples
+	//! Count the number of tuples in all samples
 	uint32_t sample_tuples_count = 0;
 
-    //! Count the number of tuples processed by this executor
-    uint32_t tuples_count = 0;
-
+	//! Count the number of tuples processed by this executor
+	uint32_t tuples_count = 0;
 
 protected:
 	void Initialize(Expression &expr, ExpressionExecutorState &state);

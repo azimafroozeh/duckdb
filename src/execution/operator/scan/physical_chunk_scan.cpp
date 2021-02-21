@@ -4,7 +4,8 @@ namespace duckdb {
 
 class PhysicalChunkScanState : public PhysicalOperatorState {
 public:
-	explicit PhysicalChunkScanState(ExecutionContext &execution_context, PhysicalOperator &op) : PhysicalOperatorState(execution_context, op, nullptr), chunk_index(0) {
+	explicit PhysicalChunkScanState(ExecutionContext &execution_context, PhysicalOperator &op)
+	    : PhysicalOperatorState(execution_context, op, nullptr), chunk_index(0) {
 	}
 
 	//! The current position in the scan

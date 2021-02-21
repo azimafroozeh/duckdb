@@ -6,7 +6,7 @@ namespace duckdb {
 
 class PhysicalExpressionScanState : public PhysicalOperatorState {
 public:
-	PhysicalExpressionScanState(ExecutionContext& execution_context, PhysicalOperator &op, PhysicalOperator *child)
+	PhysicalExpressionScanState(ExecutionContext &execution_context, PhysicalOperator &op, PhysicalOperator *child)
 	    : PhysicalOperatorState(execution_context, op, child), expression_index(0) {
 	}
 

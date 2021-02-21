@@ -38,7 +38,7 @@ public:
 
 struct TreeRendererConfig {
 
-	void enable_detailed(){
+	void enable_detailed() {
 		MAX_EXTRA_LINES = 1000;
 		detailed = true;
 	}
@@ -78,7 +78,6 @@ struct TreeRendererConfig {
 	// static constexpr const char* HORIZONTAL = "-";
 };
 
-
 class TreeRenderer {
 public:
 	explicit TreeRenderer(TreeRendererConfig config_p = TreeRendererConfig()) : config(move(config_p)) {
@@ -94,7 +93,7 @@ public:
 
 	void ToStream(RenderTree &root, std::ostream &ss);
 
-	void enable_detailed(){
+	void enable_detailed() {
 		config.enable_detailed();
 	}
 

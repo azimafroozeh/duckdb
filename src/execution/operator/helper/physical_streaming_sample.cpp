@@ -15,7 +15,8 @@ PhysicalStreamingSample::PhysicalStreamingSample(vector<LogicalType> types, Samp
 //===--------------------------------------------------------------------===//
 class StreamingSampleOperatorState : public PhysicalOperatorState {
 public:
-	StreamingSampleOperatorState(ExecutionContext &execution_context, PhysicalOperator &op, PhysicalOperator *child, int64_t seed)
+	StreamingSampleOperatorState(ExecutionContext &execution_context, PhysicalOperator &op, PhysicalOperator *child,
+	                             int64_t seed)
 	    : PhysicalOperatorState(execution_context, op, child), random(seed) {
 	}
 

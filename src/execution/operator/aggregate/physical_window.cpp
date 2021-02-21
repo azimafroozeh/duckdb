@@ -536,7 +536,8 @@ void PhysicalWindow::Combine(ExecutionContext &context, GlobalOperatorState &gst
 	gstate.chunks.Merge(lstate.chunks);
 }
 
-void PhysicalWindow::Finalize(Pipeline &pipeline, ExecutionContext &execution_context, unique_ptr<GlobalOperatorState> gstate_p) {
+void PhysicalWindow::Finalize(Pipeline &pipeline, ExecutionContext &execution_context,
+                              unique_ptr<GlobalOperatorState> gstate_p) {
 	this->sink_state = move(gstate_p);
 	auto &gstate = (WindowGlobalState &)*this->sink_state;
 

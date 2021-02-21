@@ -6,8 +6,9 @@ namespace duckdb {
 
 class PhysicalFilterState : public PhysicalOperatorState {
 public:
-	PhysicalFilterState(ExecutionContext &execution_context, PhysicalOperator &op, PhysicalOperator *child, Expression &expr)
-	    : PhysicalOperatorState(execution_context, op, child), executor(&op, &execution_context.thread,expr) {
+	PhysicalFilterState(ExecutionContext &execution_context, PhysicalOperator &op, PhysicalOperator *child,
+	                    Expression &expr)
+	    : PhysicalOperatorState(execution_context, op, child), executor(&op, &execution_context.thread, expr) {
 	}
 
 	ExpressionExecutor executor;

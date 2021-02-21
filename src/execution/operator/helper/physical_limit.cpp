@@ -8,7 +8,8 @@ namespace duckdb {
 
 class PhysicalLimitOperatorState : public PhysicalOperatorState {
 public:
-	PhysicalLimitOperatorState(ExecutionContext &execution_context, PhysicalOperator &op, PhysicalOperator *child, idx_t current_offset = 0)
+	PhysicalLimitOperatorState(ExecutionContext &execution_context, PhysicalOperator &op, PhysicalOperator *child,
+	                           idx_t current_offset = 0)
 	    : PhysicalOperatorState(execution_context, op, child), current_offset(current_offset) {
 	}
 

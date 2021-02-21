@@ -12,7 +12,8 @@ namespace duckdb {
 
 class PhysicalRecursiveCTEState : public PhysicalOperatorState {
 public:
-	explicit PhysicalRecursiveCTEState(ExecutionContext &execution_context, PhysicalOperator &op) : PhysicalOperatorState(execution_context, op, nullptr), top_done(false) {
+	explicit PhysicalRecursiveCTEState(ExecutionContext &execution_context, PhysicalOperator &op)
+	    : PhysicalOperatorState(execution_context, op, nullptr), top_done(false) {
 	}
 	unique_ptr<PhysicalOperatorState> top_state;
 	unique_ptr<PhysicalOperatorState> bottom_state;

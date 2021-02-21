@@ -31,7 +31,7 @@ struct ExpressionState {
 	DataChunk intermediate_chunk;
 	string name;
 	double time;
-    Profiler profiler;
+	Profiler profiler;
 
 public:
 	void AddChild(Expression *expr);

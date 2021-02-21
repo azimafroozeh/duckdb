@@ -211,16 +211,15 @@ void OperatorProfiler::AddTiming(PhysicalOperator *op, double time, idx_t elemen
 		entry->second.elements += elements;
 	}
 }
-void OperatorProfiler::Flush(ExpressionExecutor* expression_executor) {
-		auto entry = timings.find(expression_executor->physical_operator);
-		if (entry != timings.end()) {
-			auto &operator_timing = timings.find(expression_executor->physical_operator)->second;
-			operator_timing.executors_info = make_unique<ExpressionExecutionInformation>(*expression_executor);
-			operator_timing.executors_info->states = move(expression_executor->states);
-			operator_timing.has_executor = true;
-		}
+void OperatorProfiler::Flush(ExpressionExecutor *expression_executor) {
+	auto entry = timings.find(expression_executor->physical_operator);
+	if (entry != timings.end()) {
+		auto &operator_timing = timings.find(expression_executor->physical_operator)->second;
+		operator_timing.executors_info = make_unique<ExpressionExecutionInformation>(*expression_executor);
+		operator_timing.executors_info->states = move(expression_executor->states);
+		operator_timing.has_executor = true;
+	}
 }
-
 
 void QueryProfiler::Flush(OperatorProfiler &profiler) {
 	if (!enabled || !running) {
@@ -438,11 +437,10 @@ unique_ptr<QueryProfiler::TreeNode> QueryProfiler::CreateTree(PhysicalOperator *
 
 void QueryProfiler::Render(const QueryProfiler::TreeNode &node, std::ostream &ss) const {
 	TreeRenderer renderer;
-    if(IsDetailedEnabled()){
-        renderer.enable_detailed();
-    }
+	if (IsDetailedEnabled()) {
+		renderer.enable_detailed();
+	}
 	renderer.Render(node, ss);
-
 }
 
 void QueryProfiler::Print() {
@@ -465,8 +463,8 @@ vector<QueryProfiler::PhaseTimingItem> QueryProfiler::GetOrderedPhaseTimings() c
 	return result;
 }
 
-ExpressionExecutionInformation::ExpressionExecutionInformation(
-    ExpressionExecutor &executor) : total_count(executor.total_count) , current_count(executor.current_count), sample_count(executor.sample_count) ,
-      sample_tuples_count(executor.sample_tuples_count) , tuples_count(executor.tuples_count) {
+ExpressionExecutionInformation::ExpressionExecutionInformation(ExpressionExecutor &executor)
+    : total_count(executor.total_count), current_count(executor.current_count), sample_count(executor.sample_count),
+      sample_tuples_count(executor.sample_tuples_count), tuples_count(executor.tuples_count) {
 }
 } // namespace duckdb

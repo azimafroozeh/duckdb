@@ -28,7 +28,7 @@ PhysicalPiecewiseMergeJoin::PhysicalPiecewiseMergeJoin(LogicalOperator &op, uniq
 //===--------------------------------------------------------------------===//
 class MergeJoinLocalState : public LocalSinkState {
 public:
-	explicit MergeJoinLocalState(vector<JoinCondition> &conditions) : rhs_executor(nullptr, nullptr){
+	explicit MergeJoinLocalState(vector<JoinCondition> &conditions) : rhs_executor(nullptr, nullptr) {
 		vector<LogicalType> condition_types;
 		for (auto &cond : conditions) {
 			rhs_executor.AddExpression(*cond.right);
@@ -127,9 +127,10 @@ void PhysicalPiecewiseMergeJoin::Finalize(Pipeline &pipeline, ExecutionContext &
 //===--------------------------------------------------------------------===//
 class PhysicalPiecewiseMergeJoinState : public PhysicalOperatorState {
 public:
-	PhysicalPiecewiseMergeJoinState(ExecutionContext &execution_context, PhysicalOperator &op, PhysicalOperator *left, vector<JoinCondition> &conditions)
-	    : PhysicalOperatorState(execution_context, op, left), fetch_next_left(true), left_position(0), right_position(0),
-	      right_chunk_index(0) , lhs_executor(&op, &execution_context.thread) {
+	PhysicalPiecewiseMergeJoinState(ExecutionContext &execution_context, PhysicalOperator &op, PhysicalOperator *left,
+	                                vector<JoinCondition> &conditions)
+	    : PhysicalOperatorState(execution_context, op, left), fetch_next_left(true), left_position(0),
+	      right_position(0), right_chunk_index(0), lhs_executor(&op, &execution_context.thread) {
 		vector<LogicalType> condition_types;
 		for (auto &cond : conditions) {
 			lhs_executor.AddExpression(*cond.left);
@@ -314,7 +315,7 @@ void PhysicalPiecewiseMergeJoin::GetChunkInternal(ExecutionContext &context, Dat
 	}
 }
 
-unique_ptr<PhysicalOperatorState> PhysicalPiecewiseMergeJoin::GetOperatorState(ExecutionContext& execution_context) {
+unique_ptr<PhysicalOperatorState> PhysicalPiecewiseMergeJoin::GetOperatorState(ExecutionContext &execution_context) {
 	return make_unique<PhysicalPiecewiseMergeJoinState>(execution_context, *this, children[0].get(), conditions);
 }
 

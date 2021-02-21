@@ -109,7 +109,7 @@ void PhysicalJoin::ConstructMarkJoinResult(DataChunk &join_keys, DataChunk &left
 //===--------------------------------------------------------------------===//
 class NestedLoopJoinLocalState : public LocalSinkState {
 public:
-	explicit NestedLoopJoinLocalState(vector<JoinCondition> &conditions) : rhs_executor(nullptr, nullptr){
+	explicit NestedLoopJoinLocalState(vector<JoinCondition> &conditions) : rhs_executor(nullptr, nullptr) {
 		vector<LogicalType> condition_types;
 		for (auto &cond : conditions) {
 			rhs_executor.AddExpression(*cond.right);
@@ -186,9 +186,10 @@ unique_ptr<LocalSinkState> PhysicalNestedLoopJoin::GetLocalSinkState(ExecutionCo
 //===--------------------------------------------------------------------===//
 class PhysicalNestedLoopJoinState : public PhysicalOperatorState {
 public:
-	PhysicalNestedLoopJoinState(ExecutionContext &execution_context, PhysicalOperator &op, PhysicalOperator *left, vector<JoinCondition> &conditions)
-	    : PhysicalOperatorState(execution_context, op, left), fetch_next_left(true), fetch_next_right(false), right_chunk(0),
-	      left_tuple(0), right_tuple(0) , lhs_executor(&op, &execution_context.thread) {
+	PhysicalNestedLoopJoinState(ExecutionContext &execution_context, PhysicalOperator &op, PhysicalOperator *left,
+	                            vector<JoinCondition> &conditions)
+	    : PhysicalOperatorState(execution_context, op, left), fetch_next_left(true), fetch_next_right(false),
+	      right_chunk(0), left_tuple(0), right_tuple(0), lhs_executor(&op, &execution_context.thread) {
 		vector<LogicalType> condition_types;
 		for (auto &cond : conditions) {
 			lhs_executor.AddExpression(*cond.left);
@@ -201,11 +202,12 @@ public:
 	bool fetch_next_right;
 	idx_t right_chunk;
 	DataChunk left_condition;
-	//! The executor of the LHS condition
-	ExpressionExecutor lhs_executor;
 
 	idx_t left_tuple;
 	idx_t right_tuple;
+
+	//! The executor of the LHS condition
+	ExpressionExecutor lhs_executor;
 
 	unique_ptr<bool[]> left_found_match;
 };

@@ -5,9 +5,9 @@ namespace duckdb {
 
 unique_ptr<ExpressionState> ExpressionExecutor::InitializeState(BoundReferenceExpression &expr,
                                                                 ExpressionExecutorState &root) {
-    auto result = make_unique<ExpressionState>(expr, root);
-    result->Finalize();
-    return result;
+	auto result = make_unique<ExpressionState>(expr, root);
+	result->Finalize();
+	return result;
 }
 
 void ExpressionExecutor::Execute(BoundReferenceExpression &expr, ExpressionState *state, const SelectionVector *sel,

@@ -38,7 +38,8 @@ void PhysicalCrossProduct::Sink(ExecutionContext &context, GlobalOperatorState &
 //===--------------------------------------------------------------------===//
 class PhysicalCrossProductOperatorState : public PhysicalOperatorState {
 public:
-	PhysicalCrossProductOperatorState(ExecutionContext &execution_context, PhysicalOperator &op, PhysicalOperator *left, PhysicalOperator *right)
+	PhysicalCrossProductOperatorState(ExecutionContext &execution_context, PhysicalOperator &op, PhysicalOperator *left,
+	                                  PhysicalOperator *right)
 	    : PhysicalOperatorState(execution_context, op, left), left_position(0), right_position(0) {
 		D_ASSERT(left && right);
 	}
@@ -48,7 +49,8 @@ public:
 };
 
 unique_ptr<PhysicalOperatorState> PhysicalCrossProduct::GetOperatorState(ExecutionContext &execution_context) {
-	return make_unique<PhysicalCrossProductOperatorState>(execution_context, *this, children[0].get(), children[1].get());
+	return make_unique<PhysicalCrossProductOperatorState>(execution_context, *this, children[0].get(),
+	                                                      children[1].get());
 }
 
 void PhysicalCrossProduct::GetChunkInternal(ExecutionContext &context, DataChunk &chunk,

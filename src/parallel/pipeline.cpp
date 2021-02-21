@@ -43,7 +43,7 @@ void Pipeline::Execute(TaskContext &task) {
 		task.task_info[parallel_node] = parallel_state.get();
 	}
 
-	ThreadContext thread(client , 1);
+	ThreadContext thread(client, 1);
 	ExecutionContext context(client, thread, task);
 	try {
 		auto state = child->GetOperatorState(context);
@@ -70,8 +70,8 @@ void Pipeline::Execute(TaskContext &task) {
 }
 
 void Pipeline::FinishTask(TaskContext &task) {
-    ThreadContext thread(executor.context , 2);
-    ExecutionContext context(executor.context, thread, task);
+	ThreadContext thread(executor.context, 2);
+	ExecutionContext context(executor.context, thread, task);
 	D_ASSERT(finished_tasks < total_tasks);
 	idx_t current_finished = ++finished_tasks;
 	if (current_finished == total_tasks) {

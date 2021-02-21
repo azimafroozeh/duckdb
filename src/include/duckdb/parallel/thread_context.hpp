@@ -23,7 +23,7 @@ public:
 	int id;
 };
 
-class ThreadContext1 : public ThreadContext{
+class ThreadContext1 : public ThreadContext {
 public:
 	ThreadContext1(ClientContext context, int i);
 	static const int b = 0;

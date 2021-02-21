@@ -24,9 +24,9 @@ Executor::~Executor() {
 void Executor::Initialize(PhysicalOperator *plan) {
 	Reset();
 
-    thread_context = make_shared<ThreadContext>(context , 1);
-    TaskContext task;
-    ExecutionContext *execution_context = new ExecutionContext(context, *thread_context, task);
+	thread_context = make_shared<ThreadContext>(context, 1);
+	TaskContext task;
+	ExecutionContext *execution_context = new ExecutionContext(context, *thread_context, task);
 	physical_plan = plan;
 	physical_state = physical_plan->GetOperatorState(*execution_context);
 
@@ -59,7 +59,7 @@ void Executor::Initialize(PhysicalOperator *plan) {
 		// an exception has occurred executing one of the pipelines
 		throw Exception(exceptions[0]);
 	}
-    context.profiler.Flush(thread_context->profiler);
+	context.profiler.Flush(thread_context->profiler);
 }
 
 void Executor::Reset() {
@@ -239,7 +239,6 @@ void Executor::Flush(ThreadContext &tcontext) {
 
 unique_ptr<DataChunk> Executor::FetchChunk() {
 	D_ASSERT(physical_plan);
-
 
 	TaskContext task;
 	ExecutionContext econtext(context, *thread_context, task);

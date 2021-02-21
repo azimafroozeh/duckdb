@@ -12,7 +12,7 @@ namespace duckdb {
 
 class PhysicalTableScanOperatorState : public PhysicalOperatorState {
 public:
-	explicit PhysicalTableScanOperatorState(ExecutionContext& execution_context, PhysicalOperator &op)
+	explicit PhysicalTableScanOperatorState(ExecutionContext &execution_context, PhysicalOperator &op)
 	    : PhysicalOperatorState(execution_context, op, nullptr), initialized(false) {
 	}
 

@@ -45,7 +45,8 @@ void PhysicalOrder::Sink(ExecutionContext &context, GlobalOperatorState &state, 
 //===--------------------------------------------------------------------===//
 // Finalize
 //===--------------------------------------------------------------------===//
-void PhysicalOrder::Finalize(Pipeline &pipeline, ExecutionContext &execution_context, unique_ptr<GlobalOperatorState> state) {
+void PhysicalOrder::Finalize(Pipeline &pipeline, ExecutionContext &execution_context,
+                             unique_ptr<GlobalOperatorState> state) {
 	// finalize: perform the actual sorting
 	auto &sink = (OrderByGlobalOperatorState &)*state;
 	ChunkCollection &big_data = sink.sorted_data;
