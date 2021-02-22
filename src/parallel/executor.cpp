@@ -26,9 +26,9 @@ void Executor::Initialize(PhysicalOperator *plan) {
 
 	thread_context = make_shared<ThreadContext>(context, 1);
 	TaskContext task;
-	ExecutionContext *execution_context = new ExecutionContext(context, *thread_context, task);
+	ExecutionContext econtext(context, *thread_context, task);
 	physical_plan = plan;
-	physical_state = physical_plan->GetOperatorState(*execution_context);
+	physical_state = physical_plan->GetOperatorState(econtext);
 
 	context.profiler.Initialize(physical_plan);
 	auto &scheduler = TaskScheduler::GetScheduler(context);

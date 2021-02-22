@@ -64,8 +64,8 @@ if(${FORCE_COLORED_OUTPUT})
   endif()
 endif()
 
-option(ENABLE_SANITIZER "Enable address sanitizer." TRUE)
-option(ENABLE_UBSAN "Enable undefined behavior sanitizer." TRUE)
+option(ENABLE_SANITIZER "Enable address sanitizer." FALSE)
+option(ENABLE_UBSAN "Enable undefined behavior sanitizer." FALSE)
 option(
   FORCE_SANITIZER
   "Forces building with sanitizers even if the Python and R modules are enabled."
