@@ -64,8 +64,8 @@ if(${FORCE_COLORED_OUTPUT})
   endif()
 endif()
 
-option(ENABLE_SANITIZER "Enable address sanitizer." FALSE)
-option(ENABLE_UBSAN "Enable undefined behavior sanitizer." FALSE)
+option(ENABLE_SANITIZER "Enable address sanitizer." TRUE)
+option(ENABLE_UBSAN "Enable undefined behavior sanitizer." TRUE)
 option(
   FORCE_SANITIZER
   "Forces building with sanitizers even if the Python and R modules are enabled."
@@ -196,7 +196,7 @@ if(NOT MSVC)
   set(CMAKE_CXX_FLAGS_DEBUG
       "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 -DDEBUG -Wall ${M32_FLAG} ${CXX_EXTRA}")
   set(CMAKE_CXX_FLAGS_RELEASE
-      "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG ${M32_FLAG} ${CXX_EXTRA} -mavx2")
+      "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG ${M32_FLAG} ${CXX_EXTRA}")
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE} -g")
 
   set(CXX_EXTRA_DEBUG
