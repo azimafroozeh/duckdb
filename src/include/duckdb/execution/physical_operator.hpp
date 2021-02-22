@@ -18,7 +18,6 @@
 #include <functional>
 
 namespace duckdb {
-class ExpressionExecutor;
 class PhysicalOperator;
 class QueryProfiler;
 
