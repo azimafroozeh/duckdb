@@ -155,7 +155,11 @@ public:
 	//! console)
 	string save_location;
 
-private:
+	idx_t OperatorSize(){
+		return tree_map.size();
+	}
+
+public:
 	//! Whether or not query profiling is enabled
 	bool enabled;
 	//! Whether or not detailed query profiling is enabled
