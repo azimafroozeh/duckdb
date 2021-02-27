@@ -30,7 +30,9 @@ struct ExpressionInformation {
 	}
 	void ExtractExpressionsRecursive(unique_ptr<ExpressionState> &state);
 	vector<unique_ptr<ExpressionInformation>> children;
+	bool hasfunction = false;
 	string name;
+	string function_name;
 	double time;
 };
 

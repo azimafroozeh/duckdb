@@ -26,10 +26,7 @@ static unique_ptr<FunctionData> bind(ClientContext &context, vector<Value> &inpu
     names.emplace_back("op_id");
     return_types.push_back(LogicalType::INTEGER);
 
-    names.emplace_back("exp_id");
-    return_types.push_back(LogicalType::INTEGER);
-
-    names.emplace_back("fun_ic");
+    names.emplace_back("fun_id");
     return_types.push_back(LogicalType::INTEGER);
 
     names.emplace_back("description");
@@ -47,21 +44,25 @@ unique_ptr<FunctionOperatorData> init(ClientContext &context, const FunctionData
     return make_unique<PragmaTableOperatorData>(1);
 }
 
-static void SetValue(DataChunk &output, int index,  int op_id, int exp_id, int fun_id, string description, double time){
+static void SetValue(DataChunk &output, int index,  int op_id, int fun_id, string description, double time){
     output.SetValue(0, index, op_id);
-    output.SetValue(1, index, exp_id);
-    output.SetValue(2, index, fun_id);
-    output.SetValue(3, index, description);
-    output.SetValue(4, index, time);
+	output.SetValue(1, index, fun_id);
+    output.SetValue(2, index, description);
+    output.SetValue(3, index, time);
 }
 
-static void ExtractExpressions(ExpressionInformation &info, DataChunk &output, int index, int operator_counter) {
+static void ExtractExpressions(ExpressionInformation &info, DataChunk &output, int* index, int op_id, int* exp_id) {
+	if(info.hasfunction){
+		SetValue(output, *(index), op_id, *exp_id, "Expression: " + info.name + ", Function: " + info.function_name, info.time);
+		(*index) = *index + 1;
+        (*exp_id) = *exp_id + 1;
+	}
     if (info.children.empty()) {
         return;
     }
     // extract the children of this node
     for (auto &child : info.children) {
-
+		ExtractExpressions(*child, output, index, op_id, exp_id);
     }
     return;
 }
@@ -72,11 +73,16 @@ static void function1(ClientContext &context, const FunctionData *bind_data_p,
     if(state.rows > 0) {
 		int total_counter = 0;
         int operator_counter = 1;
-		int function_counter = 0;
-		SetValue(output, total_counter++, 0, 0, 0, "main_query", context.profiler.main_query.Elapsed());
+		SetValue(output, total_counter++, 0, 0, "Query: " + context.query, context.profiler.main_query.Elapsed());
 		for(auto op: context.prev_profiler.tree_map){
-			int expression_counter = 0;
-            SetValue(output, total_counter++, operator_counter++, 0, 0, op.second->name , op.second->info.time);
+			int expression_counter = 1;
+            SetValue(output, total_counter++, operator_counter, 0, "Operator: " + op.second->name , op.second->info.time);
+			if(op.second->info.has_executor) {
+				for (auto &info : op.second->info.executors_info->roots) {
+					ExtractExpressions(*info, output, &(total_counter), operator_counter, &(expression_counter));
+				}
+			}
+			operator_counter++;
 		}
 
 		state.rows = 0;

@@ -15,7 +15,9 @@ SELECT * FROM pragma_table_info('integers');
 	 */
 	con.Query("CREATE TABLE integers(i INTEGER, j INTEGER);");
 	con.Query("INSERT INTO integers VALUES (3,3)");
-	con.Query("Select min(i+i) from integers");
+	con.Query("Pragma enable_profiling");
+    con.Query("Pragma profiling_mode = detailed");
+	con.Query("Select min(i+i+i+i) from integers");
 	auto result = con.Query("SELECT * FROM pragma_last_profiling_output()");
 	result->Print();
 }
