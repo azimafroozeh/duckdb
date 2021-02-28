@@ -29,9 +29,9 @@ struct ExpressionState {
 	DataChunk intermediate_chunk;
 	string name;
 	double time;
-#ifdef cycle_counter
+#ifdef RDTSC
 	CycleCounter profiler;
-#elif chrono_timer
+#else
     Profiler<high_resolution_clock> profiler;
 #endif
 

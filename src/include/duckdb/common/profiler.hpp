@@ -11,9 +11,8 @@
 #include "duckdb/common/helper.hpp"
 #include "duckdb/common/chrono.hpp"
 
-#ifdef cycle_counter
-#include "duckdb/common/cycleclock.h"
-#elif chrono_timer
+#ifdef RDTSC
+#include "cycleclock.h"
 #endif
 
 namespace duckdb {
@@ -73,9 +72,9 @@ public:
 
 private:
     uint64_t Tick() const {
-#ifdef cycle_counter
+#ifdef RDTSC
 	    return Now();
-#elif chrono_timer
+#else
 		return 0;
 #endif
     }

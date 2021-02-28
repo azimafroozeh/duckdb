@@ -52,8 +52,6 @@ if(FORCE_32_BIT)
   set(M32_FLAG " -m32 ")
 endif()
 
-# Change it to cycle_counter for getting cycle-counter instead of a timer in detailed profiler
-add_compile_definitions(chrono_timer)
 
 option(DISABLE_UNITY "Disable unity builds." FALSE)
 
@@ -169,7 +167,12 @@ option(FORCE_ASSERT "Enable checking of assertions, even in release mode" FALSE)
 
 option(TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors" FALSE)
 option(EXPORT_DLL_SYMBOLS "Export dll symbols on Windows, else import" TRUE)
+option(BUILD_RDTSC "Enable the rdtsc instruction." FALSE)
 
+if(${BUILD_RDTSC})
+  include_directories(${PROJECT_SOURCE_DIR}/extension/rdtsc/include)
+  add_compile_definitions(rdtsc)
+endif()
 
 if(BUILD_PYTHON
    OR BUILD_R
