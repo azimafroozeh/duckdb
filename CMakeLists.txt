@@ -170,7 +170,6 @@ option(EXPORT_DLL_SYMBOLS "Export dll symbols on Windows, else import" TRUE)
 option(BUILD_RDTSC "Enable the rdtsc instruction." FALSE)
 
 if(${BUILD_RDTSC})
-  include_directories(${PROJECT_SOURCE_DIR}/extension/rdtsc/include)
   add_compile_definitions(RDTSC)
 endif()
 
