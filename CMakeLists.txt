@@ -171,7 +171,7 @@ option(BUILD_RDTSC "Enable the rdtsc instruction." FALSE)
 
 if(${BUILD_RDTSC})
   include_directories(${PROJECT_SOURCE_DIR}/extension/rdtsc/include)
-  add_compile_definitions(rdtsc)
+  add_compile_definitions(RDTSC)
 endif()
 
 if(BUILD_PYTHON
@@ -478,6 +478,4 @@ if(EXISTS ${CMAKE_CONFIG_TEMPLATE} AND EXISTS ${CMAKE_CONFIG_VERSION_TEMPLATE})
           "${PROJECT_BINARY_DIR}/DuckDBConfigVersion.cmake"
     DESTINATION "${INSTALL_CMAKE_DIR}")
 endif()
-
-add_subdirectory(examples/embedded-c++)
 
