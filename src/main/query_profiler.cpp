@@ -10,7 +10,7 @@
 #include "duckdb/parser/sql_statement.hpp"
 #include "duckdb/common/limits.hpp"
 #include "duckdb/execution/expression_executor.hpp"
-
+#include "duckdb/planner/expression/bound_function_expression.hpp"
 #include <utility>
 #include <algorithm>
 

@@ -9,8 +9,8 @@
 #include "duckdb/common/limits.hpp"
 namespace duckdb {
 
-struct PragmaTableOperatorData : public FunctionOperatorData {
-	explicit PragmaTableOperatorData(idx_t rows) : rows(rows) {
+struct PragmaLastProfilingOutputData : public FunctionOperatorData {
+	explicit PragmaLastProfilingOutputData(idx_t rows) : rows(rows) {
 	}
 	idx_t rows;
 };
@@ -37,7 +37,7 @@ static unique_ptr<FunctionData> PragmaLastProfilingOutputBind(ClientContext &con
 unique_ptr<FunctionOperatorData> PragmaLastProfilingOutputInit(ClientContext &context, const FunctionData *bind_data,
                                                                vector<column_t> &column_ids,
                                                                TableFilterCollection *filters) {
-	return make_unique<PragmaTableOperatorData>(1024);
+	return make_unique<PragmaLastProfilingOutputData>(1024);
 }
 
 static void SetValue(DataChunk &output, int index, int op_id, int fun_id, string description, double time) {
