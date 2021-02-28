@@ -33,7 +33,7 @@ struct ExpressionInformation {
 	bool hasfunction = false;
 	string name;
 	string function_name;
-	double time;
+	uint64_t time = 0;
 };
 
 struct ExpressionExecutorInformation {

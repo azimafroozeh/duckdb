@@ -29,7 +29,12 @@ struct ExpressionState {
 	DataChunk intermediate_chunk;
 	string name;
 	double time;
-	Profiler<high_resolution_clock> profiler;
+#ifdef cycle_counter
+	CycleCounter profiler;
+#elif chrono_timer
+    Profiler<high_resolution_clock> profiler;
+#endif
+
 
 public:
 	void AddChild(Expression *expr);

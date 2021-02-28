@@ -52,6 +52,9 @@ if(FORCE_32_BIT)
   set(M32_FLAG " -m32 ")
 endif()
 
+# Change it to cycle_counter for getting cycle-counter instead of a timer in detailed profiler
+add_compile_definitions(chrono_timer)
+
 option(DISABLE_UNITY "Disable unity builds." FALSE)
 
 option(FORCE_COLORED_OUTPUT
