@@ -1,5 +1,12 @@
 #include "duckdb/function/table/sqlite_functions.hpp"
 
+#include "duckdb/catalog/catalog_entry/table_catalog_entry.hpp"
+#include "duckdb/catalog/catalog_entry/view_catalog_entry.hpp"
+#include "duckdb/planner/constraints/bound_not_null_constraint.hpp"
+#include "duckdb/main/query_profiler.hpp"
+#include "duckdb/main/client_context.hpp"
+
+#include "duckdb/common/limits.hpp"
 namespace duckdb {
 
 struct PragmaTableOperatorData : public FunctionOperatorData {
