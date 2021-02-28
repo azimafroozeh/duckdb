@@ -25,7 +25,7 @@ struct PragmaTableInfo {
 };
 
 struct PragmaLastProfilingOutput {
-    static void RegisterFunction(BuiltinFunctions &set);
+	static void RegisterFunction(BuiltinFunctions &set);
 };
 
 struct SQLiteMaster {

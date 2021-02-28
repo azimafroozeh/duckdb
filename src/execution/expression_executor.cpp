@@ -170,7 +170,6 @@ void ExpressionExecutor::Execute(Expression &expr, ExpressionState *state, const
 		throw NotImplementedException("Attempting to execute expression of unknown type!");
 	}
 	Verify(expr, result, count);
-
 }
 
 idx_t ExpressionExecutor::Select(Expression &expr, ExpressionState *state, const SelectionVector *sel, idx_t count,

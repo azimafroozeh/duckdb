@@ -19,7 +19,7 @@ static void PragmaEnableProfilingStatement(ClientContext &context, const Functio
 }
 
 static void PragmaLastProfilingOutput(ClientContext &context, const FunctionParameters &parameters) {
-    std::cout << "here";
+	std::cout << "here";
 }
 
 static void PragmaSetProfilingModeStatement(ClientContext &context, const FunctionParameters &parameters) {
@@ -234,7 +234,7 @@ void PragmaFunctions::RegisterFunction(BuiltinFunctions &set) {
 	set.AddFunction(
 	    PragmaFunction::PragmaAssignment("profiling_mode", PragmaSetProfilingModeStatement, LogicalType::VARCHAR));
 
-    set.AddFunction(PragmaFunction::PragmaStatement("pragma_last_profiling_output", PragmaLastProfilingOutput));
+	set.AddFunction(PragmaFunction::PragmaStatement("pragma_last_profiling_output", PragmaLastProfilingOutput));
 
 	set.AddFunction(PragmaFunction::PragmaStatement("disable_profile", PragmaDisableProfiling));
 	set.AddFunction(PragmaFunction::PragmaStatement("disable_profiling", PragmaDisableProfiling));

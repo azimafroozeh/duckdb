@@ -157,7 +157,7 @@ public:
 	//! console)
 	string save_location;
 
-	idx_t OperatorSize(){
+	idx_t OperatorSize() {
 		return tree_map.size();
 	}
 
