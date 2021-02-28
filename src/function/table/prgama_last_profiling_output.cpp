@@ -65,7 +65,7 @@ static void ExtractExpressions(ExpressionInformation &info, DataChunk &output, i
 
 static void PragmaLastProfilingOutputFunction(ClientContext &context, const FunctionData *bind_data_p,
                                               FunctionOperatorData *operator_state, DataChunk &output) {
-	auto &state = (PragmaTableOperatorData &)*operator_state;
+	auto &state = (PragmaLastProfilingOutputData &)*operator_state;
 	if (state.rows > 0) {
 		int total_counter = 0;
 		int operator_counter = 1;
