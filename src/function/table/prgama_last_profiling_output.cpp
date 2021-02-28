@@ -1,3 +1,5 @@
+#include "duckdb/function/table/sqlite_functions.hpp"
+
 namespace duckdb {
 
 struct PragmaTableOperatorData : public FunctionOperatorData {
@@ -34,7 +36,7 @@ unique_ptr<FunctionOperatorData> PragmaLastProfilingOutputInit(ClientContext &co
 static void SetValue(DataChunk &output, int index, int op_id, int fun_id, string description, double time) {
 	output.SetValue(0, index, op_id);
 	output.SetValue(1, index, fun_id);
-	output.SetValue(2, index, description);
+	output.SetValue(2, index, move(description));
 	output.SetValue(3, index, time);
 }
 

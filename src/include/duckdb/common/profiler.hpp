@@ -12,7 +12,7 @@
 #include "duckdb/common/chrono.hpp"
 
 #ifdef RDTSC
-#include "cycleclock.h"
+#include "cycleclock.hpp"
 #endif
 
 namespace duckdb {

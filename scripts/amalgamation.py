@@ -71,7 +71,7 @@ include_paths = [include_dir, fmt_include_dir, re2_dir, miniz_dir, utf8proc_incl
 compile_directories = [src_dir, fmt_dir, miniz_dir, re2_dir, hll_dir, utf8proc_dir, pg_query_dir]
 
 # files always excluded
-always_excluded = ['src/amalgamation/duckdb.cpp', 'src/amalgamation/duckdb.hpp', 'src/amalgamation/parquet-extension.cpp', 'src/amalgamation/parquet-extension.hpp']
+always_excluded = ['src/amalgamation/duckdb.cpp', 'src/amalgamation/duckdb.hpp', 'src/amalgamation/parquet-extension.cpp', 'src/amalgamation/parquet-extension.hpp' , 'cycles.hpp']
 # files excluded from the amalgamation
 excluded_files = ['grammar.cpp', 'grammar.hpp', 'symbols.cpp', 'file_system.cpp']
 # files excluded from individual file compilation during test_compile
