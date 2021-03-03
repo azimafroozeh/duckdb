@@ -100,24 +100,15 @@ int main(int argc, char **argv) {
                 result->Print();
             } else if (arg == "5") {
                 // Load data
-                con.Query("CREATE TABLE tbl AS SELECT (i % 2)::INT i FROM range(100 * 1024 * 1024) tbl(i);");
+                con.Query("CREATE TABLE tbl AS SELECT (i % 2)::BIGINT i FROM range(100 * 1024 * 1024) tbl(i);");
                 con.Query("Pragma enable_profiling");
                 con.Query("Pragma profiling_mode = detailed");
                 // Run queries
                 query =
-                    R"(SELECT  min(i + i + i + i + i + i + i + i + i + i +
-	                            i + i + i + i + i + i + i + i + i + i +
-                                i + i + i + i + i + i + i + i + i + i +
-	                            i + i + i + i + i + i + i + i + i + i +
-                                i + i + i + i + i + i + i + i + i + i +
-                                i + i + i + i + i + i + i + i + i + i +
-                                i + i + i + i + i + i + i + i + i + i +
-	                            i + i + i + i + i + i + i + i + i + i +
-	                            i + i + i + i + i + i + i + i + i + i +
-	                            i + i + i + i + i + i + i + i + i + i )
+                    R"(SELECT  min(i + i)
                                 FROM tbl)";
                 con.Query(query);
-                auto result = con.Query(" Pragma all_profiling_output");
+                auto result = con.Query("SELECT * FROM pragma_detailed_profiling_output()");
                 result->Print();
             } else if (arg == "50") {
                 // Load data
