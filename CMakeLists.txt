@@ -169,9 +169,7 @@ option(TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors" FALSE)
 option(EXPORT_DLL_SYMBOLS "Export dll symbols on Windows, else import" TRUE)
 option(BUILD_RDTSC "Enable the rdtsc instruction." FALSE)
 
-if(${BUILD_RDTSC})
   add_compile_definitions(RDTSC)
-endif()
 
 if(BUILD_PYTHON
    OR BUILD_R
