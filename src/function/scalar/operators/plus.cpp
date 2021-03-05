@@ -18,27 +18,27 @@ static void plus_default(DataChunk &args, ExpressionState &state, Vector &result
 		result_data[i] = data1[i] + data2[i];
 	}
 }
-
-#ifdef AVX2
- static void plus_avx2(DataChunk &args, ExpressionState &state, Vector &result) {
-    auto result_data = FlatVector::GetData<uint8_t>(result);
-    auto data1 = FlatVector::GetData<uint8_t>(args.data[0]);
-    auto data2 = FlatVector::GetData<int8_t>(args.data[1]);
-    __m256i r;
-    __m256i l;
-    __m256i tmp;
-    for (int i = 0; i < 1024 ; i = i + 32){
-        r = _mm256_loadu_si256(reinterpret_cast<const __m256i_u *>(data1 + i));
-        l = _mm256_loadu_si256(reinterpret_cast<const __m256i_u *>(data2 + i));
-        tmp = _mm256_add_epi8(r, l);
-        _mm256_storeu_si256(reinterpret_cast<__m256i_u *>(result_data + i), tmp);
-    }
-}
-#else
-static void plus_avx2(DataChunk &args, ExpressionState &state, Vector &result) {
-	std::cout << "here";
-}
-#endif
+//
+//#ifdef AVX2
+// static void plus_avx2(DataChunk &args, ExpressionState &state, Vector &result) {
+//    auto result_data = FlatVector::GetData<uint8_t>(result);
+//    auto data1 = FlatVector::GetData<uint8_t>(args.data[0]);
+//    auto data2 = FlatVector::GetData<int8_t>(args.data[1]);
+//    __m256i r;
+//    __m256i l;
+//    __m256i tmp;
+//    for (int i = 0; i < 1024 ; i = i + 32){
+//        r = _mm256_loadu_si256(reinterpret_cast<const __m256i_u *>(data1 + i));
+//        l = _mm256_loadu_si256(reinterpret_cast<const __m256i_u *>(data2 + i));
+//        tmp = _mm256_add_epi8(r, l);
+//        _mm256_storeu_si256(reinterpret_cast<__m256i_u *>(result_data + i), tmp);
+//    }
+//}
+//#else
+//static void plus_avx2(DataChunk &args, ExpressionState &state, Vector &result) {
+//	std::cout << "here";
+//}
+//#endif
 //
 // static void plus_avx512(DataChunk &args, ExpressionState &state, Vector &result) {
 //    auto result_data = FlatVector::GetData<int8_t>(result);
