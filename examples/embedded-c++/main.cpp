@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
                 con.Query("Pragma profiling_mode = detailed");
                 // Run queries
                 query =
-                    R"(SELECT  plus(i , i)
+                    R"(SELECT  (i + i)
                                 FROM tbl)";
                 con.Query(query);
                 auto result = con.Query("SELECT * FROM pragma_detailed_profiling_output()");
