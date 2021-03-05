@@ -6,7 +6,8 @@ add_library(
         bitwise.cpp
         multiply.cpp
         subtract.cpp
-        operators.cpp)
+        operators.cpp
+plus.cpp)
 
 target_compile_definitions(avx2 PRIVATE AVX2)
 set_target_properties (avx2 PROPERTIES COMPILE_FLAGS "-mavx2")
@@ -23,7 +24,8 @@ add_library(
         bitwise.cpp
         multiply.cpp
         subtract.cpp
-        operators.cpp)
+        operators.cpp
+plus.cpp)
 
 target_compile_definitions(duckdb_func_ops PRIVATE SCALAR)
 

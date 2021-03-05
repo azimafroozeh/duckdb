@@ -26,6 +26,10 @@ struct SET_ARCH(MultiplyFun) {
 	static void RegisterFunction(BuiltinFunctions &set);
 };
 
+struct SET_ARCH(Plus) {
+    static void RegisterFunction(BuiltinFunctions &set);
+};
+
 struct SET_ARCH(DivideFun) {
 	static void RegisterFunction(BuiltinFunctions &set);
 };

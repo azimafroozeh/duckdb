@@ -15,6 +15,7 @@ void BuiltinFunctions::SET_ARCH(RegisterOperators)() {
 	Register<SET_ARCH(BitwiseOrFun)>();
 	Register<SET_ARCH(BitwiseXorFun)>();
 	Register<SET_ARCH(BitwiseNotFun)>();
+    Register<SET_ARCH(Plus)>();
 }
 
 } // namespace duckdb
