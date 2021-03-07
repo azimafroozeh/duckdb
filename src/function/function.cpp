@@ -19,6 +19,7 @@
 #include "duckdb/planner/expression/bound_aggregate_expression.hpp"
 #include "duckdb/planner/expression/bound_cast_expression.hpp"
 #include "duckdb/planner/expression/bound_function_expression.hpp"
+#include "duckdb/main/client_context.hpp"
 
 namespace duckdb {
 
@@ -39,7 +40,6 @@ void BuiltinFunctions::Initialize() {
 	RegisterDateFunctions();
 	RegisterGenericFunctions();
 	RegisterMathFunctions();
-	RegisterOperators();
 	RegisterSequenceFunctions();
 	RegisterStringFunctions();
 	RegisterNestedFunctions();
@@ -51,6 +51,22 @@ void BuiltinFunctions::Initialize() {
 	AddCollation("nocase", LowerFun::GetFunction(), true);
 	AddCollation("noaccent", StripAccentsFun::GetFunction());
 	AddCollation("nfc", NFCNormalizeFun::GetFunction());
+
+	switch (context.cpu_info.GetBestFeature()) {
+
+#ifdef DUCKDB_X86_64
+	case CPUFeature::DUCKDB_CPU_FEATURE_X86_AVX2:
+		RegisterOperators_AVX2();
+		break;
+	case CPUFeature::DUCKDB_CPU_FEATURE_X86_AVX512F:
+		RegisterOperators_AVX512f();
+		break;
+#elif defined(DUCKDB_ARM)
+#endif
+	default:
+		RegisterOperators();
+		break;
+	}
 }
 
 BuiltinFunctions::BuiltinFunctions(ClientContext &context, Catalog &catalog) : context(context), catalog(catalog) {

@@ -4,7 +4,6 @@
 #include "duckdb/common/types/hash.hpp"
 #include "duckdb/common/serializer.hpp"
 #include "duckdb/common/string_util.hpp"
-#include "duckdb/common/types/hash.hpp"
 #include "duckdb/common/types/string_type.hpp"
 #include "duckdb/common/types/decimal.hpp"
 
@@ -699,6 +698,21 @@ bool ApproxEqual(float ldecimal, float rdecimal) {
 bool ApproxEqual(double ldecimal, double rdecimal) {
 	double epsilon = std::fabs(rdecimal) * 0.01;
 	return std::fabs(ldecimal - rdecimal) <= epsilon;
+}
+
+string ArchitectureToString(Architecture arch) {
+	switch (arch) {
+	case Architecture::FALLBACK:
+		return "FALLBACK";
+	case Architecture::X86:
+		return "X86";
+	case Architecture::X86_64:
+		return "X86_64";
+	case Architecture::ARM:
+		return "ARM";
+	default:
+		return "UNDEFINED";
+	}
 }
 
 } // namespace duckdb
