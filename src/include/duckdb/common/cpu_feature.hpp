@@ -163,23 +163,12 @@ enum CPUFeature {
 	DUCKDB_CPU_FEATURE_ARM_CRC32 = DUCKDB_CPU_FEATURE_ARM | 0x0100 | 5
 };
 
-static unordered_map<string, CPUFeature> const table = {
+unordered_map<string, CPUFeature> const table = {
     {"DUCKDB_CPU_FEATURE_X86_AVX2", DUCKDB_CPU_FEATURE_X86_AVX2},
     {"DUCKDB_CPU_FEATURE_X86_AVX512F", DUCKDB_CPU_FEATURE_X86_AVX512F},
     {"DUCKDB_CPU_FALLBACK", DUCKDB_CPU_FALLBACK}
 };
 
-static string CPUFeatureToString(CPUFeature feature) {
-    switch (feature) {
-	case CPUFeature::DUCKDB_CPU_FALLBACK:
-        return "DUCKDB_CPU_FALLBACK";
-	case CPUFeature::DUCKDB_CPU_FEATURE_X86_AVX2:
-        return "DUCKDB_CPU_FEATURE_X86_AVX2";
-    case CPUFeature::DUCKDB_CPU_FEATURE_X86_AVX512F:
-        return "DUCKDB_CPU_FEATURE_X86_AVX512F";
-    default:
-        return "UNDEFINED";
-    }
-}
+string CPUFeatureToString(CPUFeature feature);
 
 } // namespace duckdb
