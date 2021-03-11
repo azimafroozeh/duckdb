@@ -25,7 +25,7 @@ public:
 	void Initialize();
 public:
 	CpuInfo();
-    void SetFeature(CPUFeature feature);
+    void SetFeature(ClientContext &clientContext, CPUFeature feature);
 };
 } // namespace duckdb
 

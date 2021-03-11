@@ -1,7 +1,9 @@
 #include "duckdb/common/cpu_info.hpp"
+#include "duckdb/common/cpu_feature.hpp"
 #include "duckdb/common/types.hpp"
 #include "duckdb/function/function.hpp"
-#include "duckdb/common/cpu_feature.hpp"
+#include <duckdb.hpp>
+#include <duckdb/parser/parsed_data/create_schema_info.hpp>
 
 namespace duckdb {
 
@@ -121,6 +123,9 @@ CPUFeature CpuInfo::GetBestFeature() const {
 }
 
 bool CpuInfo::HasFeature(CPUFeature feature) {
+	if(feature == DUCKDB_CPU_FALLBACK){
+		return true;
+	}
 	return CpuFeatureCheck(feature);
 }
 
@@ -137,9 +142,11 @@ void CpuInfo::SetBestFeature(CPUFeature best_feature) {
 	this->best_feature = best_feature;
 }
 
-void CpuInfo::SetFeature(CPUFeature feature) {
+void CpuInfo::SetFeature(ClientContext &clientContext, CPUFeature feature) {
 	SetBestFeature(feature);
-
+    auto &catalog = Catalog::GetCatalog(clientContext);
+    BuiltinFunctions builtin(clientContext, catalog);
+    builtin.Initialize();
 }
 
 } // namespace duckdb

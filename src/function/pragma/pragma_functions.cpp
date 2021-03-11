@@ -17,7 +17,7 @@ static void PragmaSetCPUFeature(ClientContext &context, const FunctionParameters
     if( table.find(feature_s) != table.end()) {
 		feature = table.find(feature_s)->second;
 		if (context.cpu_info.HasFeature(feature)) {
-			context.cpu_info.SetFeature(feature);
+			context.cpu_info.SetFeature(context, feature);
 		}
 	}
 	else {
