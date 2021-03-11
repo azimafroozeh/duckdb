@@ -163,7 +163,7 @@ enum CPUFeature {
 	DUCKDB_CPU_FEATURE_ARM_CRC32 = DUCKDB_CPU_FEATURE_ARM | 0x0100 | 5
 };
 
-static std::unordered_map<std::string, CPUFeature> const table = {
+static unordered_map<string, CPUFeature> const table = {
     {"DUCKDB_CPU_FEATURE_X86_AVX2", DUCKDB_CPU_FEATURE_X86_AVX2},
     {"DUCKDB_CPU_FEATURE_X86_AVX512F", DUCKDB_CPU_FEATURE_X86_AVX512F},
     {"DUCKDB_CPU_FALLBACK", DUCKDB_CPU_FALLBACK}
