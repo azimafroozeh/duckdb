@@ -5,7 +5,6 @@
 //
 //
 //===----------------------------------------------------------------------===//
-#include "duckdb/common/types.hpp"
 #include "duckdb/common/cpu_feature.hpp"
 #pragma once
 namespace duckdb {
