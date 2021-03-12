@@ -8,6 +8,9 @@
 
 #pragma once
 
+#include "duckdb/common/string.hpp"
+
+
 namespace duckdb {
 enum CPUFeature {
 	DUCKDB_CPU_FALLBACK = 0,

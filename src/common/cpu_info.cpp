@@ -2,8 +2,7 @@
 #include "duckdb/common/cpu_feature.hpp"
 #include "duckdb/common/types.hpp"
 #include "duckdb/function/function.hpp"
-#include <duckdb.hpp>
-#include <duckdb/parser/parsed_data/create_schema_info.hpp>
+#include "duckdb/main/client_context.hpp"
 
 namespace duckdb {
 
