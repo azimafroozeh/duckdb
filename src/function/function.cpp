@@ -47,8 +47,6 @@ void BuiltinFunctions::Initialize() {
 
 	RegisterPragmaFunctions();
 
-
-
 	// initialize collations
 	AddCollation("nocase", LowerFun::GetFunction(), true);
 	AddCollation("noaccent", StripAccentsFun::GetFunction());
@@ -66,7 +64,7 @@ void BuiltinFunctions::Initialize() {
 #elif defined(DUCKDB_ARM)
 #endif
 	default:
-        RegisterOperators();
+		RegisterOperators();
 		break;
 	}
 }

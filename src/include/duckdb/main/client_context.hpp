@@ -90,6 +90,7 @@ public:
 	std::mt19937 random_engine;
 
 	CpuInfo cpu_info;
+
 public:
 	DUCKDB_API Transaction &ActiveTransaction() {
 		return transaction.ActiveTransaction();
