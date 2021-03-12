@@ -17,7 +17,7 @@
 #include "duckdb/common/winapi.hpp"
 #include "duckdb/execution/physical_operator.hpp"
 #include "duckdb/execution/expression_executor_state.hpp"
-#include <stack>
+#include "duckdb/common/stack.hpp"
 #include "duckdb/common/unordered_map.hpp"
 #include "duckdb/common/pair.hpp"
 #include "duckdb/common/deque.hpp"
