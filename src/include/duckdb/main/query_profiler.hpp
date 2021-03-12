@@ -88,7 +88,7 @@ private:
 	//! The timer used to time the execution time of the individual Physical Operators
 	Profiler<system_clock> op;
 	//! The stack of Physical Operators that are currently active
-	std::stack<PhysicalOperator *> execution_stack;
+	stack<PhysicalOperator *> execution_stack;
 	//! A mapping of physical operators to recorded timings
 	unordered_map<PhysicalOperator *, OperatorTimingInformation> timings;
 };
