@@ -18,7 +18,7 @@
 #include "duckdb/execution/physical_operator.hpp"
 #include "duckdb/execution/expression_executor_state.hpp"
 #include <stack>
-#include <unordered_map>
+#include "duckdb/common/unordered_map.hpp"
 #include "duckdb/common/pair.hpp"
 #include "duckdb/common/deque.hpp"
 

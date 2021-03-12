@@ -1,6 +1,5 @@
 #include "duckdb/common/cpu_info.hpp"
 #include "duckdb/common/cpu_feature.hpp"
-#include "duckdb/common/types.hpp"
 #include "duckdb/function/function.hpp"
 #include "duckdb/main/client_context.hpp"
 
