@@ -9,13 +9,13 @@
 #include "duckdb/common/cpu_feature.hpp"
 #pragma once
 namespace duckdb {
+class ClientContext;
 class CpuInfo {
 	vector<CPUFeature> avail_features;
 	CPUFeature best_feature;
 
 public:
 	void SetBestFeature(CPUFeature bestFeature);
-	shared_ptr<BuiltinFunctions> builtin_functions;
 
 public:
 	const vector<CPUFeature> &GetAvailFeatures() const;
@@ -26,6 +26,6 @@ public:
 
 public:
 	CpuInfo();
-	void SetFeature(ClientContext &clientContext, CPUFeature feature);
+	void SetFeature(ClientContext &client_context, CPUFeature feature);
 };
 } // namespace duckdb

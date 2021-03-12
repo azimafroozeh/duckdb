@@ -141,10 +141,10 @@ void CpuInfo::SetBestFeature(CPUFeature best_feature) {
 	this->best_feature = best_feature;
 }
 
-void CpuInfo::SetFeature(ClientContext &clientContext, CPUFeature feature) {
+void CpuInfo::SetFeature(ClientContext &client_context, CPUFeature feature) {
 	SetBestFeature(feature);
-	auto &catalog = Catalog::GetCatalog(clientContext);
-	BuiltinFunctions builtin(clientContext, catalog);
+	auto &catalog = Catalog::GetCatalog(client_context);
+	BuiltinFunctions builtin(client_context, catalog);
 	builtin.Initialize();
 }
 
