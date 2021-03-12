@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "duckdb/common/cpu_feature.hpp"
+#include "duckdb/common/vector.hpp"
 #pragma once
 namespace duckdb {
 class ClientContext;
