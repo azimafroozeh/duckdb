@@ -2,7 +2,6 @@
 #include "duckdb/common/cpu_feature.hpp"
 #include "duckdb/main/client_context.hpp"
 
-
 namespace duckdb {
 
 struct PragmaCpuFeaturesOutputData : public FunctionOperatorData {

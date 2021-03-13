@@ -13,8 +13,6 @@
 #include <future>
 #endif
 
-
-
 namespace duckdb {
 class Executor;
 class ProgressBar {

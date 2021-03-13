@@ -11,7 +11,6 @@
 #include "duckdb/parser/parsed_data/create_schema_info.hpp"
 #include "duckdb/transaction/transaction_manager.hpp"
 
-
 namespace duckdb {
 
 StorageManager::StorageManager(DatabaseInstance &db, string path, bool read_only)

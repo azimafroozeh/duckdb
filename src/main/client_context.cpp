@@ -26,7 +26,6 @@
 #include "duckdb/planner/pragma_handler.hpp"
 #include "duckdb/common/progress_bar.hpp"
 
-
 namespace duckdb {
 
 class ClientContextLock {
