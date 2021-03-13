@@ -16,7 +16,6 @@
 #include "duckdb.h"
 #include "duckdb/common/string.hpp"
 
-
 namespace duckdb {
 class Executor;
 class ProgressBar {
