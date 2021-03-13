@@ -2,7 +2,7 @@
 #include "duckdb/common/printer.hpp"
 #include "duckdb/main/client_context.hpp"
 #include "duckdb/execution/executor.hpp"
-#include "duckdb/common/string.hpp"
+
 namespace duckdb {
 
 void ProgressBar::ProgressBarThread() {
