@@ -1,5 +1,6 @@
 #include "duckdb/function/table/sqlite_functions.hpp"
 #include "duckdb/common/cpu_feature.hpp"
+#include "duckdb/main/client_context.hpp"
 
 
 namespace duckdb {
